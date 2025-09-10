@@ -34,13 +34,43 @@ def generate_mermaid_code(node_count: int, edge_count: int, events: List[str]) -
             node_ids.append(f"{chr(65 + i//26)}{chr(65 + i%26)}")
     
     # ✅ CLEAN EVENTS - Remove any Pydantic field names and special characters
-    clean_events = []
-    for event in events[:node_count]:
+    def clean_event_text(event_text):
+        """Clean event text and ensure English-only output for Mermaid"""
         # Remove field names like "initial_query:", "ticker:", etc.
-        if ': ' in event:
-            clean_event = event.split(': ')[-1]
+        if ': ' in event_text:
+            clean_event = event_text.split(': ')[-1]
         else:
-            clean_event = event
+            clean_event = event_text
+        
+        # Translate common Chinese terms to English for Mermaid consistency
+        chinese_to_english = {
+            '短期上涨': 'Short Term Up',
+            '短期下跌': 'Short Term Down', 
+            '长期上涨': 'Long Term Up',
+            '长期下跌': 'Long Term Down',
+            '上涨': 'Up',
+            '下跌': 'Down',
+            '上升': 'Up',
+            '下降': 'Down',
+            '短期': 'Short Term',
+            '长期': 'Long Term',
+            '影响': 'Impact',
+            '分析': 'Analysis',
+            '结果': 'Result',
+            '决策': 'Decision',
+            '事件': 'Event',
+            '市场': 'Market',
+            '股票': 'Stock',
+            '价格': 'Price',
+            '收益': 'Revenue',
+            '利润': 'Profit',
+            '风险': 'Risk',
+            '机会': 'Opportunity'
+        }
+        
+        # Replace Chinese terms with English equivalents
+        for chinese, english in chinese_to_english.items():
+            clean_event = clean_event.replace(chinese, english)
         
         # Clean special characters that break Mermaid.js
         clean_event = clean_event.replace('"', "'")  # Replace quotes
@@ -56,7 +86,11 @@ def generate_mermaid_code(node_count: int, edge_count: int, events: List[str]) -
         if len(clean_event) > 50:
             clean_event = clean_event[:47] + "..."
         
-        clean_events.append(clean_event)
+        return clean_event
+    
+    clean_events = []
+    for event in events[:node_count]:
+        clean_events.append(clean_event_text(event))
     
     # ✅ TRULY DYNAMIC MERMAID CODE - Adapts to any number of nodes
     mermaid_code = "graph LR\n"
@@ -66,20 +100,33 @@ def generate_mermaid_code(node_count: int, edge_count: int, events: List[str]) -
     for i in range(node_count):
         node_id = node_ids[i]
         if i < len(clean_events):
-            # ✅ LAST NODE - Just show the final decision (Short/Long)
+            # ✅ LAST NODE - Just show the final decision (Short/Long) - ENGLISH ONLY
             if i == node_count - 1:  # Last node
                 # Extract one of the four options from the last event
                 last_event = clean_events[i]
-                if "Short Term Up" in last_event:
+                if "Short Term Up" in last_event or "短期上涨" in last_event or "短期上升" in last_event:
                     event_text = "Short Term Up"
-                elif "Short Term Down" in last_event:
+                elif "Short Term Down" in last_event or "短期下跌" in last_event or "短期下降" in last_event:
                     event_text = "Short Term Down"
-                elif "Long Term Up" in last_event:
+                elif "Long Term Up" in last_event or "长期上涨" in last_event or "长期上升" in last_event:
                     event_text = "Long Term Up"
-                elif "Long Term Down" in last_event:
+                elif "Long Term Down" in last_event or "长期下跌" in last_event or "长期下降" in last_event:
                     event_text = "Long Term Down"
                 else:
-                    event_text = last_event
+                    # Fallback to English - extract direction from any language
+                    if "Up" in last_event or "上涨" in last_event or "上升" in last_event:
+                        if "Short" in last_event or "短期" in last_event:
+                            event_text = "Short Term Up"
+                        else:
+                            event_text = "Long Term Up"
+                    elif "Down" in last_event or "下跌" in last_event or "下降" in last_event:
+                        if "Short" in last_event or "短期" in last_event:
+                            event_text = "Short Term Down"
+                        else:
+                            event_text = "Long Term Down"
+                    else:
+                        # Ultimate fallback - use English default
+                        event_text = "Final Decision"
             else:
                 event_text = clean_events[i]
         else:
@@ -222,6 +269,59 @@ class ChainOfThoughtAgent:
         )
         self.structured_llm = self.llm_agent.get_structured_llm(ChainOfThoughtResult)
     
+    def _ensure_english_direction(self, direction: str) -> str:
+        """Ensure final_direction is always in English"""
+        direction = str(direction).strip()
+        
+        # Chinese to English mapping
+        chinese_to_english = {
+            '短期上涨': 'Short Term Up',
+            '短期下跌': 'Short Term Down',
+            '短期下行': 'Short Term Down',
+            '长期上涨': 'Long Term Up',
+            '长期下跌': 'Long Term Down',
+            '长期下行': 'Long Term Down',
+            '上涨': 'Short Term Up',
+            '下跌': 'Short Term Down',
+            '下行': 'Short Term Down',
+            '上升': 'Short Term Up',
+            '下降': 'Short Term Down'
+        }
+        
+        # Check for exact Chinese matches
+        if direction in chinese_to_english:
+            return chinese_to_english[direction]
+        
+        # Check for partial Chinese matches
+        for chinese, english in chinese_to_english.items():
+            if chinese in direction:
+                return english
+        
+        # Check for English patterns
+        if 'Short Term Up' in direction or 'short term up' in direction.lower():
+            return 'Short Term Up'
+        elif 'Short Term Down' in direction or 'short term down' in direction.lower():
+            return 'Short Term Down'
+        elif 'Long Term Up' in direction or 'long term up' in direction.lower():
+            return 'Long Term Up'
+        elif 'Long Term Down' in direction or 'long term down' in direction.lower():
+            return 'Long Term Down'
+        
+        # Fallback - try to extract direction
+        if 'up' in direction.lower() or '上涨' in direction or '上升' in direction:
+            if 'short' in direction.lower() or '短期' in direction:
+                return 'Short Term Up'
+            else:
+                return 'Long Term Up'
+        elif 'down' in direction.lower() or '下跌' in direction or '下行' in direction or '下降' in direction:
+            if 'short' in direction.lower() or '短期' in direction:
+                return 'Short Term Down'
+            else:
+                return 'Long Term Down'
+        
+        # Ultimate fallback
+        return 'Short Term Up'
+    
     def generate_impact_chain(
         self,
         ticker: str,
@@ -259,7 +359,7 @@ class ChainOfThoughtAgent:
         2. **REFERENCE MARKET DATA** - Use return rates and date ranges from Market Expectation Agent as reference points
         3. **FOLLOW LOGICAL PROGRESSION** - Each event must logically cause the next event
         4. **USE QUANTITATIVE EVIDENCE** - Reference percentages and return rates from agent analysis results
-        5. **CONSISTENT DIRECTION** - If negative news, show how it leads to negative impact; if positive, show positive progression
+        5. **MAINTAIN SAME DIRECTION** - CRITICAL: If the starting event is positive/good news, show how it creates POSITIVE impact throughout the chain. If the starting event is negative/bad news, show how it creates NEGATIVE impact throughout the chain. DO NOT REVERSE THE IMPACT DIRECTION.
         6. **ANALYSIS FOCUS** - Focus on logical chain progression with market data as supporting evidence
 
         CHAIN STRUCTURE WITH MARKET DATA REFERENCE:
@@ -277,7 +377,12 @@ class ChainOfThoughtAgent:
         - **LONG TERM DOWN**: Fundamental business model issues, competitive threats
         - **SHORT TERM UP**: Temporary positive catalysts, immediate market reactions
 
-        EXAMPLE CHAIN WITH MARKET DATA REFERENCE:
+        EXAMPLE CHAINS WITH MARKET DATA REFERENCE:
+        
+        POSITIVE EXAMPLE (Good News → Positive Impact):
+        "New product launch → Market data shows similar launches caused +12.5% (refer from 2023-01-15 to 2023-01-18) → Increased demand (+8% revenue) → Market share growth (+5% stock price) → Short Term Up"
+        
+        NEGATIVE EXAMPLE (Bad News → Negative Impact):
         "Tariff increase → Market data shows similar tariff events caused -15.3% (refer from 2023-01-15 to 2023-01-18) → Supply chain disruption (-3% margin) → Inventory pressure (-2% revenue) → Short Term Down"
 
         OUTPUT FORMAT:
@@ -285,7 +390,7 @@ class ChainOfThoughtAgent:
             "initial_query": "{user_question}",
             "ticker": "{ticker}",
             "impact_chain": "Event A → Market Data Reference (X% return from date1 to date2) → Event B (XX% impact) → Event C (XX% impact) → Final Direction",
-            "final_direction": "Short Term Up, Short Term Down, Long Term Up, or Long Term Down",
+            "final_direction": "MUST BE ONE OF: 'Short Term Up', 'Short Term Down', 'Long Term Up', or 'Long Term Down' - NO OTHER LANGUAGE",
             "chain_explanation": "Brief explanation including the return rate and date range from market data reference",
             "node_count": <number of events>,
             "edge_count": <number of connections>,
@@ -321,14 +426,20 @@ class ChainOfThoughtAgent:
         - Date ranges: "from 2023-01-15 to 2023-01-18"
         - Numeric data from Market Expectation Agent
 
+        CRITICAL DIRECTION RULE:
+        - **POSITIVE STARTING EVENT** (good news, positive development, growth opportunity) → MUST lead to **POSITIVE IMPACT** → Final direction should be "Short Term Up" or "Long Term Up"
+        - **NEGATIVE STARTING EVENT** (bad news, negative development, threat, problem) → MUST lead to **NEGATIVE IMPACT** → Final direction should be "Short Term Down" or "Long Term Down"
+        - **NEVER REVERSE**: If something is good news, don't turn it into negative impact. If something is bad news, don't turn it into positive impact.
+
         IMPORTANT:
         - Start with the user query as the first event
         - Include return rates and date ranges from Market Expectation Agent as reference
         - Follow rigorous logical progression with quantitative evidence
         - Use return rates and date ranges from market data as supporting evidence
-        - Final direction must be one of the four options
+        - Final direction MUST be EXACTLY one of: "Short Term Up", "Short Term Down", "Long Term Up", "Long Term Down" - NO CHINESE, NO OTHER LANGUAGE
         - Focus on logical chain progression with market data as reference points
         - DO NOT include "estimated", "return over", "last", "past", "previous" in the output
+        - CRITICAL: final_direction field MUST be in English only
         """
         
         # Add language instruction only if not English
@@ -356,6 +467,9 @@ class ChainOfThoughtAgent:
                     raise Exception(f"Failed to parse JSON from AIMessage: {json_error}")
             else:
                 # Result is already a Pydantic object
+                # Post-process to ensure final_direction is always English
+                if hasattr(result, 'final_direction'):
+                    result.final_direction = self._ensure_english_direction(result.final_direction)
                 return result
         except Exception as e:
             # Fallback to regular LLM call
@@ -364,11 +478,13 @@ class ChainOfThoughtAgent:
                 parsed = parse_llm_response(response)
                 
                 if parsed:
+                    # Ensure final_direction is English
+                    final_direction = self._ensure_english_direction(parsed.get("final_direction", ""))
                     return ChainOfThoughtResult(
                         initial_query=user_question,
                         ticker=ticker,
                         impact_chain=parsed.get("impact_chain", ""),
-                        final_direction=parsed.get("final_direction", ""),
+                        final_direction=final_direction,
                         chain_explanation=parsed.get("chain_explanation", ""),
                         node_count=parsed.get("node_count", 0),
                         edge_count=parsed.get("edge_count", 0),
@@ -475,7 +591,7 @@ SPECIALIZATION INSTRUCTIONS:
         2. **REFERENCE MARKET DATA** - Use return rates and date ranges from Market Expectation Agent as reference points
         3. **FOLLOW LOGICAL PROGRESSION** - Each event must logically cause the next event
         4. **USE QUANTITATIVE EVIDENCE** - Reference percentages and return rates from agent analysis results
-        5. **CONSISTENT DIRECTION** - If negative news, show how it leads to negative impact; if positive, show positive progression
+        5. **MAINTAIN SAME DIRECTION** - CRITICAL: If the starting event is positive/good news, show how it creates POSITIVE impact throughout the chain. If the starting event is negative/bad news, show how it creates NEGATIVE impact throughout the chain. DO NOT REVERSE THE IMPACT DIRECTION.
         6. **ANALYSIS FOCUS** - Focus on logical chain progression with market data as supporting evidence
         7. **SPECIALIZATION** - Focus on YOUR specific query area. Don't duplicate analysis from other queries.
         8. **REFERENCE FOCUS** - Use market data as reference points, not as primary extraction targets.
@@ -495,7 +611,12 @@ SPECIALIZATION INSTRUCTIONS:
         - **LONG TERM DOWN**: Fundamental business model issues, competitive threats
         - **SHORT TERM UP**: Temporary positive catalysts, immediate market reactions
 
-        EXAMPLE CHAIN WITH MARKET DATA REFERENCE:
+        EXAMPLE CHAINS WITH MARKET DATA REFERENCE:
+        
+        POSITIVE EXAMPLE (Good News → Positive Impact):
+        "New product launch → Market data shows similar launches caused +12.5% (refer from 2023-01-15 to 2023-01-18) → Increased demand (+8% revenue) → Market share growth (+5% stock price) → Short Term Up"
+        
+        NEGATIVE EXAMPLE (Bad News → Negative Impact):
         "Tariff increase → Market data shows similar tariff events caused -15.3% (refer from 2023-01-15 to 2023-01-18) → Supply chain disruption (-3% margin) → Inventory pressure (-2% revenue) → Short Term Down"
 
         OUTPUT FORMAT:
@@ -503,7 +624,7 @@ SPECIALIZATION INSTRUCTIONS:
             "initial_query": "{user_question}",
             "ticker": "{ticker}",
             "impact_chain": "Event A → Market Data Reference (X% return from date1 to date2) → Event B (XX% impact) → Event C (XX% impact) → Final Direction",
-            "final_direction": "Short Term Up, Short Term Down, Long Term Up, or Long Term Down",
+            "final_direction": "MUST BE ONE OF: 'Short Term Up', 'Short Term Down', 'Long Term Up', or 'Long Term Down' - NO OTHER LANGUAGE",
             "chain_explanation": "Brief explanation including the return rate and date range from market data reference",
             "node_count": <number of events>,
             "edge_count": <number of connections>,
@@ -539,14 +660,20 @@ SPECIALIZATION INSTRUCTIONS:
         - Date ranges: "from 2023-01-15 to 2023-01-18"
         - Numeric data from Market Expectation Agent
 
+        CRITICAL DIRECTION RULE:
+        - **POSITIVE STARTING EVENT** (good news, positive development, growth opportunity) → MUST lead to **POSITIVE IMPACT** → Final direction should be "Short Term Up" or "Long Term Up"
+        - **NEGATIVE STARTING EVENT** (bad news, negative development, threat, problem) → MUST lead to **NEGATIVE IMPACT** → Final direction should be "Short Term Down" or "Long Term Down"
+        - **NEVER REVERSE**: If something is good news, don't turn it into negative impact. If something is bad news, don't turn it into positive impact.
+
         IMPORTANT:
         - Start with the user query as the first event
         - Include return rates and date ranges from Market Expectation Agent as reference
         - Follow rigorous logical progression with quantitative evidence
         - Use return rates and date ranges from market data as supporting evidence
-        - Final direction must be one of the four options
+        - Final direction MUST be EXACTLY one of: "Short Term Up", "Short Term Down", "Long Term Up", "Long Term Down" - NO CHINESE, NO OTHER LANGUAGE
         - Focus on logical chain progression with market data as reference points
         - DO NOT include "estimated", "return over", "last", "past", "previous" in the output
+        - CRITICAL: final_direction field MUST be in English only
         
         CRITICAL: Output ALL text in {language} language only. Do NOT use any other language.
         """

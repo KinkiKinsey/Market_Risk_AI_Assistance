@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&Q.AI - Impact Chain Analysis Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Large Logo Section - Invisible Background */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 20px;
+            /* NO BACKGROUND - Invisible chunk */
+            background: transparent;
+            border: none;
+            border-radius: 0;
+        }
+
+        .logo-svg {
+            width: 500px;
+            height: 200px;
+            filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8));
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8)); }
+            50% { filter: drop-shadow(0 0 60px rgba(118, 75, 162, 1)); }
+        }
+
+        .logo-text {
+            font-size: 48px;
+            font-weight: 200;
+            color: #ffffff;
+            letter-spacing: 12px;
+            margin-top: 30px;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+        }
+
+        .logo-description {
+            font-size: 20px;
+            font-weight: 100;
+            color: #a0aec0;
+            letter-spacing: 4px;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+
+        .ticker-bar {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticker-symbol {
+            font-size: 2em;
+            font-weight: 600;
+            color: #667eea;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        /* Single Ring Design */
+        .ring-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .single-ring {
+            width: 25px;
+            height: 25px;
+            border: 2px solid;
+            border-radius: 50%;
+            position: relative;
+            animation: ring-pulse 2s ease-in-out infinite;
+        }
+
+        .ring-quantitative {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+        }
+
+        .ring-qualitative {
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.6);
+        }
+
+        @keyframes ring-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        .ring-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ring-glow 3s ease-in-out infinite;
+        }
+
+        .ring-glow-quantitative {
+            border: 1px solid #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ring-glow-qualitative {
+            border: 1px solid #764ba2;
+            box-shadow: 0 0 20px rgba(118, 75, 162, 0.4);
+        }
+
+        @keyframes ring-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Section Titles with Rings */
+        .section-title-with-ring {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .section-title-text {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .color-legend {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .legend-title {
+            font-size: 1.5em;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .legend-subtitle {
+            font-size: 1em;
+            color: #a0aec0;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-color.long-term-up {
+            background: linear-gradient(135deg, #3498db, #5dade2);
+        }
+
+        .legend-color.long-term-down {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .legend-color.short-term-up {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .legend-color.short-term-down {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .legend-text {
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .chain-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .chain-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .chain-title {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .direction-badge {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .direction-badge.short-term-up {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .direction-badge.short-term-down {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .direction-badge.long-term-up {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .direction-badge.long-term-down {
+            background: rgba(230, 126, 34, 0.2);
+            color: #e67e22;
+            border: 1px solid #e67e22;
+        }
+
+        .chain-content {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #cbd5e0;
+        }
+
+        .mermaid-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .summary-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #cbd5e0;
+        }
+
+        .summary-content p {
+            margin-bottom: 15px;
+        }
+
+        /* TWO COLUMN LAYOUT FOR SELL/BUY */
+        .sell-buy-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .sell-side-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .buy-side-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .side-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sell-side-title {
+            color: #e74c3c;
+        }
+
+        .buy-side-title {
+            color: #27ae60;
+        }
+
+        .side-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .side-content p {
+            margin-bottom: 12px;
+        }
+
+        /* NEW: FOUR PANEL LAYOUT FOR RISK/REWARD */
+        .risk-reward-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .risk-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reward-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-value {
+            font-size: 3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* NEW COLOR SCHEME: Higher scores = Green, Lower scores = Red */
+        .metric-value.excellent {
+            color: #27ae60;
+            text-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+        }
+
+        .metric-value.good {
+            color: #2ecc71;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .metric-value.warning {
+            color: #f39c12;
+            text-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .metric-value.danger {
+            color: #e74c3c;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* NEW: TWO COLUMN LAYOUT FOR PRICE IN/PRICE OUT */
+        .price-analysis-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .price-in-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-out-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .price-in-title {
+            color: #27ae60;
+        }
+
+        .price-out-title {
+            color: #e74c3c;
+        }
+
+        .price-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        /* NEW: Dynamic Reasoning Bar */
+        .reasoning-container {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .reasoning-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .reasoning-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .reasoning-text {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+            text-align: justify;
+        }
+
+        .conclusion-card {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .conclusion-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .conclusion-text {
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 0.9em;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sell-buy-container {
+                grid-template-columns: 1fr;
+            }
+            .risk-reward-grid {
+                grid-template-columns: 1fr;
+            }
+            .risk-panel, .reward-panel {
+                grid-template-columns: 1fr;
+            }
+            .price-analysis-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Large Logo Section - Invisible Background -->
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="cleanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#667eea;#764ba2;#667eea" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#764ba2;#667eea;#764ba2" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                    </linearGradient>
+                    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge> 
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- First Ellipse (Quantitative) -->
+                <ellipse cx="150" cy="65" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+
+                <!-- Second Ellipse (Qualitative) -->
+                <ellipse cx="210" cy="85" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                </ellipse>
+
+                <!-- Intersection area highlight -->
+                <ellipse cx="180" cy="75" rx="20" ry="12" 
+                      fill="url(#cleanGradient)" 
+                      opacity="0.25"
+                      filter="url(#subtleGlow)">
+                    <animate attributeName="opacity" values="0.25;0.4;0.25" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="logo-text">Q&Q.AI</div>
+            <div class="logo-description">定量与定性AI投资分析系统</div>
+        </div>
+
+        <!-- Ticker info bar -->
+        <div class="ticker-bar">
+            <div class="ticker-symbol">ORCL</div>
+            <div>Analysis Date: 2025-09-10</div>
+            <div>6 Impact Chains Analyzed</div>
+        </div>
+
+        <!-- Color Legend -->
+        
+        <div class="color-legend">
+            <h3 class="legend-title">影响链方向说明</h3>
+            <p class="legend-subtitle">不同颜色代表不同的投资方向和时间维度</p>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color long-term-up"></div>
+                    <span class="legend-text">长期上涨</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color long-term-down"></div>
+                    <span class="legend-text">长期下跌</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-up"></div>
+                    <span class="legend-text">短期上涨</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-down"></div>
+                    <span class="legend-text">短期下跌</span>
+                </div>
+            </div>
+        </div>
+    
+
+        <!-- Impact Chains Section - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-qualitative">
+                    <div class="ring-glow ring-glow-qualitative"></div>
+                </div>
+                <div class="section-title-text">定性AI</div>
+            </div>
+        
+            
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">1</div>
+                        <div class="chain-title">AI基础设施需求激增</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">AI基础设施需求激增 → 市场数据显示+70% OCI收入增长预测(2026财年) → 云服务收入增长(占43.9%总收入) → 股价上涨(历史类似趋势显示+0.786%日均回报, 2025-06-13至2025-07-03) → Long Term Up</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: AI基础设施需求激增..."]
+    A[AI基础设施需求激增]
+    B[Market数据显示+70 OCI收入增长预测2026财年]
+    C[云服务收入增长占43.9总收入]
+    D[股价Up历史类似趋势显示+0.786日均回报 2025-06-13至2025-07-03]
+    E[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">2</div>
+                        <div class="chain-title">1380亿美元合同积压执行风险评估</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">1380亿美元合同积压执行风险评估 → 市场数据显示类似趋势平均日回报率0.786%-4.092% (2025-06-13至2025-07-03) → 成功执行带来现金流改善(+70% OCI收入增长) → 估值修复(当前价格$241.51 vs DCF $58.35) → 长期上涨</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 1380亿美元合同积压执行Risk评估..."]
+    A[1380亿美元合同积压执行Risk评估]
+    B[Market数据显示类似趋势平均日回报率0.786-4.092 2025-06-13至2025...]
+    C[成功执行带来现金流改善+70 OCI收入增长]
+    D[估值修复当前Price241.51 vs DCF 58.35]
+    E[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">3</div>
+                        <div class="chain-title">880亿美元长期债务</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">880亿美元长期债务 → 市场数据显示-15.3%回报率（2025-02-19至2025-03-11） → 利息成本增加（净债务/EBITDA 13.67倍） → 财务灵活性受限（负自由现金流收益率-0.63%） → 短期下跌</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 880亿美元Long Term债务..."]
+    A[880亿美元Long Term债务]
+    B[Market数据显示-15.3回报率2025-02-19至2025-03-11]
+    C[利息成本增加净债务EBITDA 13.67倍]
+    D[财务灵活性受限负自由现金流Revenue率-0.63]
+    E[Short Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">4</div>
+                        <div class="chain-title">多云合作战略评估</div>
+                    </div>
+                    <span class="direction-badge short-term-up">Short Term Up</span>
+                </div>
+                <div class="chain-content">多云合作战略评估 → 市场数据显示+1.678%日平均回报率（2024-10-03至2024-10-09） → 云RPO增长近500% → 企业采用率提升 → 短期上涨</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 多云合作战略评估..."]
+    A[多云合作战略评估]
+    B[Market数据显示+1.678日平均回报率2024-10-03至2024-10-09]
+    C[云RPO增长近500]
+    D[企业采用率提升]
+    E[Short Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">5</div>
+                        <div class="chain-title">传统软件向云订阅转型</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">传统软件向云订阅转型 → 市场数据显示+23%股价上涨(2024-09-09至2024-09-16) → 云服务收入增长(占43.9%总收入) → 许可证支持收入下降(占33.9%总收入) → 长期上涨</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 传统软件向云订阅转型..."]
+    A[传统软件向云订阅转型]
+    B[Market数据显示+23股价Up2024-09-09至2024-09-16]
+    C[云服务收入增长占43.9总收入]
+    D[许可证支持收入Down占33.9总收入]
+    E[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">6</div>
+                        <div class="chain-title">AI需求饱和风险评估</div>
+                    </div>
+                    <span class="direction-badge long-term-down">Long Term Down</span>
+                </div>
+                <div class="chain-content">AI需求饱和风险评估 → 市场数据显示类似趋势下跌-0.837%日平均回报率（2025-08-06至2025-08-21） → 企业AI支出正常化导致云RPO增长放缓 → 收入增长减速 → 长期增长前景减弱 → Long Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 6: AI需求饱和Risk评估..."]
+    A[AI需求饱和Risk评估]
+    B[Market数据显示类似趋势Down-0.837日平均回报率2025-08-06至2025-0...]
+    C[企业AI支出正常化导致云RPO增长放缓]
+    D[收入增长减速]
+    E[Long Term增长前景减弱]
+    F[Long Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style F fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+        </div>
+
+        <!-- Sell & Buy Analysis - TWO COLUMN LAYOUT -->
+        <div class="section">
+            <h2 class="section-title">买卖分析总结</h2>
+            <div class="sell-buy-container">
+                <div class="sell-side-card">
+                    <h3 class="side-title sell-side-title">卖出分析</h3>
+                    <div class="side-content">
+                        <p>面临AWS、Azure和Google的激烈竞争</p>
+<p>880亿美元长期债务增加财务风险</p>
+<p>业务模式转型存在执行风险</p>
+<p>AI需求饱和可能带来未来阻力</p>
+<p>经济敏感性高于市场平均水平</p>
+
+                    </div>
+                </div>
+                <div class="buy-side-card">
+                    <h3 class="side-title buy-side-title">买入分析</h3>
+                    <div class="side-content">
+                        <p>云收入双位数增长，FY25达245亿美元</p>
+<p>1380亿美元合同积压提供强劲收入可见性</p>
+<p>运营利润增长16%，利润率31%</p>
+<p>多云合作伙伴关系加速增长</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Logic Summary -->
+        <div class="section">
+            <h2 class="section-title">商业逻辑总结</h2>
+            <div class="summary-card">
+                <div class="summary-content">
+                    <p>['高客户转换成本形成经济护城河', '企业级客户深度集成产生客户锁定', '云基础设施收入Q4增长52%', '多重收入流：软件许可、云服务、硬件和咨询', '4500亿美元市值保持竞争优势']</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusion Analysis - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-quantitative">
+                    <div class="ring-glow ring-glow-quantitative"></div>
+                </div>
+                <div class="section-title-text">定量AI</div>
+            </div>
+        
+
+            <!-- KEEP: Four Panel Risk/Reward Layout -->
+            <div class="risk-reward-grid">
+                <!-- Risk Panel -->
+                <div class="risk-panel">
+                    <div class="metric-card">
+                        <div class="metric-value danger">0.75/1.0</div>
+                        <div class="metric-label">短期风险评分</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value good">0.45/1.0</div>
+                        <div class="metric-label">长期风险评分</div>
+                    </div>
+                </div>
+                
+                <!-- Reward Panel -->
+                <div class="reward-panel">
+                    <div class="metric-card">
+                        <div class="metric-value warning">0.35/1.0</div>
+                        <div class="metric-label">短期回报评分</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value good">0.65/1.0</div>
+                        <div class="metric-label">长期回报评分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Two Column Price In/Price Out Layout -->
+            <div class="price-analysis-container">
+                <div class="price-in-card">
+                    <h3 class="price-title price-in-title">当前价格已反映</h3>
+                    <div class="price-content">
+                        <p>当前价格$241.51已充分反映AI基础设施需求激增和云服务增长预期。市场已定价Oracle与OpenAI的300亿美元年化云交易、70% OCI收入增长指引以及AI相关合同积压价值。债务担忧部分反映但未完全定价。</p>
+                    </div>
+                </div>
+                <div class="price-out-card">
+                    <h3 class="price-title price-out-title">当前价格未反映</h3>
+                    <div class="price-content">
+                        <p>市场未充分定价880亿美元长期债务的流动性风险（流动比率0.75）和利息成本压力。AI需求饱和风险、合同执行效率不确定性以及云转型平衡问题未被发现。一旦这些风险定价，股价可能下跌15-20%。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Dynamic Reasoning Bar -->
+            <div class="reasoning-container">
+                <h3 class="reasoning-title">AI风险评级分析说明</h3>
+                <div class="reasoning-bar">
+                    <div class="reasoning-text">短期高风险(0.75)：价格已从近期低点大幅上涨，债务压力显著（净债务/EBITDA 13.67倍），负自由现金流(-0.63%)显示流动性紧张，历史类似债务压力期间平均日回报率-1.587%。短期回报低(0.35)：缺乏新鲜催化剂，AI需求可能饱和，债务担忧压制上涨空间。长期风险中等(0.45)：企业级客户深度集成提供护城河，但债务结构和高估值($241.51 vs DCF $58.35)构成风险。长期回报较好(0.65)：AI基础设施需求、1380亿美元合同积压和云服务收入占比43.9%支撑长期增长，但执行效率是关键变量。</div>
+                </div>
+            </div>
+
+ 
+    
+
+            <!-- Key Catalysts -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">关键催化剂</h3>
+                <div class="conclusion-text">三大关键变量：1、AI需求饱和风险导致云RPO增长放缓 2、1380亿美元合同积压执行效率和现金流转化 3、云订阅转型速度与许可证收入下降的平衡关系。这三者任何变化都将改变整体效益。</div>
+            </div>
+
+            <!-- Short Term Impact -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">短期影响</h3>
+                <div class="conclusion-text">短期不安全：当前价格$241.51面临重大风险。880亿美元长期债务导致负自由现金流收益率-0.63%，净债务/EBITDA 13.67倍过高，历史数据显示类似债务压力期间平均日回报率-1.587%，流动比率0.75显示流动性压力。</div>
+            </div>
+
+            <!-- Long Term Outlook -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">长期展望</h3>
+                <div class="conclusion-text">长期安全：企业级客户深度集成形成强劲经济护城河，云基础设施收入Q4增长52%，1380亿美元合同积压为长期收入提供保障，AI基础设施需求推动云服务收入占比43.9%总收入，多重收入流结构优化支撑长期增长。</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>由 Q&Q.AI  - 定量&定性 AI</p>
+            <p>报告生成时间: 2025-09-10 01:58:36</p>
+            <p>© 2025 Q&Q.AI - 连接数据智能</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#667eea',
+                secondaryColor: '#764ba2',
+                background: 'rgba(255, 255, 255, 0.05)',
+                mainBkg: 'rgba(255, 255, 255, 0.05)',
+                secondBkg: 'rgba(102, 126, 234, 0.1)',
+                fontFamily: 'Segoe UI',
+                fontSize: '14px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
