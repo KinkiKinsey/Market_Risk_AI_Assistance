@@ -96,7 +96,7 @@ class RedisDatabaseStorage:
             logging.error(traceback.format_exc())
             raise
     
-    def store_stock_trend_data(self, ticker: str, current_json: Dict, historical_json: Dict, metadata: Dict, collection_name: str = "stock_trends") -> bool:
+    async def store_stock_trend_data(self, ticker: str, current_json: Dict, historical_json: Dict, metadata: Dict, collection_name: str = "stock_trends") -> bool:
         """
         Store stock trend data in Redis.
         
@@ -165,7 +165,7 @@ class RedisDatabaseStorage:
                 logging.info(f"   - Attempting to store in Redis key: {redis_key}")
                 
                 # Store in Redis
-                result = self.client.set(redis_key, document_str)
+                result = await self.client.set(redis_key, document_str)
                 
                 if result:
                     logging.info(f"✓ Successfully stored stock trend data for {ticker}")
@@ -266,10 +266,10 @@ class RedisDatabaseStorage:
             logging.error(f"   - Error details: {e}")
             return []
     
-    def close(self):
+    async def close(self):
         """Close the Redis connection."""
         if self.client:
-            self.client.close()
+            await self.client.close()
             logging.info("🔚 Redis connection closed")
     
     async def update_if_stale_with_lock(self, ticker: str, collection_name: str = "stock_trends", force_update: bool = False) -> str:
@@ -334,7 +334,7 @@ class RedisDatabaseStorage:
                     logging.info(f"   - Current trends: {len(current_json)} segments")
                     
                     # Store the fresh data
-                    success = self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
+                    success = await self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
                     
                     if success:
                         logging.info(f"✅ Successfully updated shared data for {ticker}")
@@ -982,9 +982,9 @@ class DatabaseStorage:
                 'database_type': self.db_type
             }
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
-        self.storage.close()
+        await self.storage.close()
 
 
     
@@ -1023,7 +1023,7 @@ class DatabaseStorage:
             logging.info(f"   - Current trends: {len(current_json)} segments")
             
             # Store the fresh data in Redis database
-            success = self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
+            success = await self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
             
             if success:
                 logging.info(f"✅ Successfully downloaded and stored {ticker} data in Redis")
@@ -1041,7 +1041,7 @@ class DatabaseStorage:
             logging.error(traceback.format_exc())
             return False
     
-    def store_stock_trend_files(self, ticker: str, current_file: str, historical_file: str, metadata_file: str, collection_name: str = "stock_trends") -> bool:
+    async def store_stock_trend_files(self, ticker: str, current_file: str, historical_file: str, metadata_file: str, collection_name: str = "stock_trends") -> bool:
         """
         Store stock trend data from files to MongoDB.
         
@@ -1071,7 +1071,7 @@ class DatabaseStorage:
                 return False
             
             # Store the data
-            return self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
+            return await self.store_stock_trend_data(ticker, current_json, historical_json, metadata, collection_name)
             
         except Exception as e:
             logging.error("❌ UNEXPECTED ERROR STORING STOCK TREND FILES:")
@@ -1162,7 +1162,7 @@ def setup_logging(level: str = "INFO"):
     logging.info(f"   - Console output: Enabled")
 
 
-def main():
+async def main():
     """Main function to handle command line arguments and execute storage operations."""
     parser = argparse.ArgumentParser(description='Stock Trend DB Agent - Simple ticker download tool')
     
@@ -1268,7 +1268,7 @@ def main():
         sys.exit(1)
     finally:
         if 'storage' in locals():
-            storage.close()
+            await storage.close()
             logging.info("🔚 Database connection closed")
 
 
@@ -1314,9 +1314,10 @@ if __name__ == "__main__":
     # Example usage:
     # python Stock_Trend_DB_Agent.py --test-locking
     import sys
+    import asyncio
     
     if len(sys.argv) > 1 and sys.argv[1] == "--test-locking":
         test_update_locking()
     else:
-        main()
+        asyncio.run(main())
     

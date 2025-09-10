@@ -104,7 +104,7 @@ class RedisEarningsAndFutureStorage:
             logging.error(traceback.format_exc())
             raise
     
-    def store_earnings_and_future_data(self, ticker: str, earnings_and_future: Dict, metadata: Dict, collection_name: str = "earnings_and_future") -> bool:
+    async def store_earnings_and_future_data(self, ticker: str, earnings_and_future: Dict, metadata: Dict, collection_name: str = "earnings_and_future") -> bool:
         """
         Store earnings and future data in Redis.
         
@@ -162,7 +162,7 @@ class RedisEarningsAndFutureStorage:
                 logging.info(f"   - Attempting to store in Redis key: {redis_key}")
                 
                 # Store in Redis
-                result = self.client.set(redis_key, document_str)
+                result = await self.client.set(redis_key, document_str)
                 
                 if result:
                     logging.info(f"✓ Successfully stored earnings and future data for {ticker}")
@@ -190,7 +190,7 @@ class RedisEarningsAndFutureStorage:
             logging.error(traceback.format_exc())
             return False
     
-    def get_earnings_and_future_data(self, ticker: str, collection_name: str = "Earnings_and_Future_INFOS") -> Optional[Dict]:
+    async def get_earnings_and_future_data(self, ticker: str, collection_name: str = "Earnings_and_Future_INFOS") -> Optional[Dict]:
         """
         Retrieve earnings and future data from Redis.
         
@@ -206,7 +206,7 @@ class RedisEarningsAndFutureStorage:
             logging.info(f"   - Redis namespace: {collection_name}")
             
             redis_key = f"{collection_name}:{ticker.upper()}_earnings_and_future"
-            data_str = self.client.get(redis_key)
+            data_str = await self.client.get(redis_key)
             
             if data_str:
                 data = json.loads(data_str)
@@ -310,7 +310,7 @@ class EarningsAndFutureDatabaseStorage:
         else:
             raise ValueError(f"Unsupported database type: {db_type}. Use 'redis'")
     
-    def store_earnings_and_future_data(self, ticker: str, earnings_and_future: Dict, metadata: Dict, collection_name: str = "Earnings_and_Future_INFOS") -> bool:
+    async def store_earnings_and_future_data(self, ticker: str, earnings_and_future: Dict, metadata: Dict, collection_name: str = "Earnings_and_Future_INFOS") -> bool:
         """
         Store earnings and future data in the database.
         
@@ -324,7 +324,7 @@ class EarningsAndFutureDatabaseStorage:
             bool: True if successful, False otherwise
         """
         try:
-            success = self.storage.store_earnings_and_future_data(ticker, earnings_and_future, metadata, collection_name)
+            success = await self.storage.store_earnings_and_future_data(ticker, earnings_and_future, metadata, collection_name)
             
             if success:
                 logging.info(f"✅ Successfully stored earnings and future data for {ticker}")
@@ -382,7 +382,7 @@ class EarningsAndFutureDatabaseStorage:
             logging.info(f"   - Future development length: {len(result.get('earnings_and_future', {}).get('future_development', ''))}")
             
             # Store the fresh data in database
-            success = self.store_earnings_and_future_data(
+            success = await self.store_earnings_and_future_data(
                 ticker=ticker,
                 earnings_and_future=result['earnings_and_future'],
                 metadata=result.get('metadata', {}),
@@ -421,7 +421,7 @@ class EarningsAndFutureDatabaseStorage:
             logging.info(f"🔍 Getting earnings and future data for ticker: {ticker}")
             
             # Check if data exists in database
-            existing_data = self.get_earnings_and_future_data(ticker, collection_name)
+            existing_data = await self.get_earnings_and_future_data(ticker, collection_name)
             
             if existing_data:
                 # ✅ Data exists - check if it's fresh (within 24 hours)
@@ -445,7 +445,7 @@ class EarningsAndFutureDatabaseStorage:
                             success = await self.download_and_store_ticker(ticker, collection_name)
                             
                             if success:
-                                return self.get_earnings_and_future_data(ticker, collection_name)
+                                return await self.get_earnings_and_future_data(ticker, collection_name)
                             else:
                                 logging.error(f"❌ Failed to download fresh data for {ticker} after staleness check")
                                 return existing_data  # Return old data if fresh download fails
@@ -460,7 +460,7 @@ class EarningsAndFutureDatabaseStorage:
                     success = await self.download_and_store_ticker(ticker, collection_name)
                     
                     if success:
-                        return self.get_earnings_and_future_data(ticker, collection_name)
+                        return await self.get_earnings_and_future_data(ticker, collection_name)
                     else:
                         logging.error(f"❌ Failed to download fresh data for {ticker} to get complete metadata")
                         return existing_data  # Return old data if fresh download fails
@@ -471,7 +471,7 @@ class EarningsAndFutureDatabaseStorage:
             
             if success:
                 # Retrieve the newly stored data
-                return self.get_earnings_and_future_data(ticker, collection_name)
+                return await self.get_earnings_and_future_data(ticker, collection_name)
             else:
                 logging.error(f"❌ Failed to download earnings and future data for {ticker}")
                 return None
@@ -501,7 +501,7 @@ def setup_logging(level: str = "INFO"):
     )
 
 
-def main():
+async def main():
     """Main function to handle command line arguments and execute earnings and future operations."""
     parser = argparse.ArgumentParser(description='Earnings and Future DB Agent - Simple ticker download tool')
     
@@ -563,7 +563,7 @@ def main():
             logging.info(f"📈 RETRIEVING EARNINGS AND FUTURE DATA")
             logging.info(f"   - Ticker: {args.ticker.upper()}")
             
-            data = storage.get_earnings_and_future_data(args.ticker.upper(), DB_COLLECTION)
+            data = await storage.get_earnings_and_future_data(args.ticker.upper(), DB_COLLECTION)
             if data:
                 logging.info("✅ EARNINGS AND FUTURE DATA RETRIEVED SUCCESSFULLY")
                 logging.info(f"   - Transcript length: {len(data.get('earnings_and_future', {}).get('transcript', ''))}")
@@ -580,8 +580,7 @@ def main():
             logging.info(f"   - Collection: {DB_COLLECTION}")
             
             # Use the update logic instead of always downloading
-            import asyncio
-            data = asyncio.run(storage.get_or_download_earnings_and_future(args.ticker.upper(), DB_COLLECTION))
+            data = await storage.get_or_download_earnings_and_future(args.ticker.upper(), DB_COLLECTION)
             if data:
                 logging.info("✅ EARNINGS AND FUTURE DATA AVAILABLE (fresh or existing)")
                 logging.info(f"   - Transcript length: {len(data.get('earnings_and_future', {}).get('transcript', ''))}")
@@ -620,4 +619,5 @@ if __name__ == "__main__":
     # python Earnings_and_Future_DB_Agent.py TSLA
     # python Earnings_and_Future_DB_Agent.py --list-tickers
     # python Earnings_and_Future_DB_Agent.py AAPL --get-data
-    main()
+    import asyncio
+    asyncio.run(main())

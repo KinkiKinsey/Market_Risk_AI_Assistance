@@ -231,6 +231,8 @@ class SharedClientPool:
             except Exception as e:
                 print(f"⚠️ LLM_Call_Agent initialization failed: {e}")
                 print("🔄 Falling back to direct API clients")
+                # Ensure we have a fallback LLM agent
+                self.llm_call_agent = None
         
         # Fallback to direct API clients
         if not OPENAI_AVAILABLE:
@@ -253,6 +255,24 @@ class SharedClientPool:
             print("✅ DeepSeek client initialized (direct)")
         else:
             print("⚠️ No DeepSeek API key provided")
+        
+        # CRITICAL: Ensure we always have an LLM agent available
+        if self.llm_call_agent is None:
+            try:
+                # Try to create LLMCallAgent again with different approach
+                self.llm_call_agent = LLMCallAgent(
+                    openai_api_key=OPENAI_API_KEY,
+                    deepseek_api_key=DEEPSEEK_API_KEY,
+                    default_provider="deepseek",
+                    default_model="deepseek-chat"
+                )
+                self.use_legacy_llm_agent = True
+                print("✅ Created LLM agent using direct initialization")
+            except Exception as e:
+                print(f"❌ CRITICAL: Failed to create LLM agent: {e}")
+                # Set to None but don't raise exception - let agents handle it
+                self.llm_call_agent = None
+                print("⚠️ LLM agent will be None - agents will create their own")
     
     async def _initialize_redis_pools(self):
         """Initialize Redis connection pools"""
@@ -404,17 +424,33 @@ class SharedClientPool:
         self._initialized = False
         print("✅ Shared client pool closed")
     
-    def get_frontend_redis(self):
-        """Get frontend Redis connection"""
-        return self.frontend_redis_pool or self.frontend_redis_backup
-    
-    def get_stock_trend_redis(self):
-        """Get stock trend Redis connection"""
-        return self.stock_trend_redis_pool or self.stock_trend_redis_backup
-    
     def get_llm_agent(self):
         """Get LLM call agent"""
         return self.llm_call_agent
+    
+    def get_frontend_redis(self):
+        """Get frontend Redis connection"""
+        if self.frontend_redis_pool:
+            return self.frontend_redis_pool
+        elif self.frontend_redis_backup:
+            return self.frontend_redis_backup
+        return None
+    
+    def get_stock_trend_redis(self):
+        """Get stock trend Redis connection"""
+        if self.stock_trend_redis_pool:
+            return self.stock_trend_redis_pool
+        elif self.stock_trend_redis_backup:
+            return self.stock_trend_redis_backup
+        return None
+    
+    def get_earnings_redis(self):
+        """Get earnings Redis connection (alias for stock trend)"""
+        return self.get_stock_trend_redis()
+    
+    def get_financial_metrics_redis(self):
+        """Get financial metrics Redis connection (alias for stock trend)"""
+        return self.get_stock_trend_redis()
     
     def get_http_session(self):
         """Get HTTP session"""

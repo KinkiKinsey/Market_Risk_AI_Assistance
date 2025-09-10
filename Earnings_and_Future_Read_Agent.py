@@ -68,6 +68,12 @@ class EarningsAndFutureReadAgent:
         if shared_clients:
             # Use shared Redis connection
             self.redis_client = shared_clients.get_stock_trend_redis()
+            self.collection_name = collection_name  # CRITICAL: Set collection_name for shared clients
+            self.redis_host = redis_host  # CRITICAL: Set redis_host for shared clients
+            self.redis_port = redis_port
+            self.redis_username = redis_username
+            self.redis_password = redis_password
+            self.openai_api_key = openai_api_key
             self.storage = EarningsAndFutureDatabaseStorage(
                 db_type="redis",
                 shared_clients=shared_clients
@@ -135,7 +141,7 @@ class EarningsAndFutureReadAgent:
         if self.llm_agent and hasattr(self.llm_agent, 'get_provider_status'):
             logging.info(f"   - LLM Provider: {self.llm_agent.get_provider_status()['deepseek']}")
     
-    def get_earnings_data(self, ticker: str) -> Optional[Dict]:
+    async def get_earnings_data(self, ticker: str) -> Optional[Dict]:
         """
         Retrieve earnings and future development data for a given ticker using direct Redis access.
         
@@ -150,7 +156,7 @@ class EarningsAndFutureReadAgent:
             
             # Direct Redis access using the same logic as DB Agent
             redis_key = f"{self.collection_name}:{ticker.upper()}_earnings_and_future"
-            data_str = self.redis_client.get(redis_key)
+            data_str = await self.redis_client.get(redis_key)
             
             if data_str:
                 data = json.loads(data_str)
@@ -305,7 +311,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
             logging.error(f"❌ Error in LLM analysis: {e}")
             return f"❌ Error analyzing earnings data: {e}"
     
-    def check_database_status(self, ticker: str, force_update: bool = False) -> Dict:
+    async def check_database_status(self, ticker: str, force_update: bool = False) -> Dict:
         """
         Check database status for a ticker - data availability and freshness.
         
@@ -320,7 +326,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
             logging.info(f"🔍 Checking database status for ticker: {ticker}")
             
             # Get earnings data from database
-            earnings_data = self.get_earnings_data(ticker)
+            earnings_data = await self.get_earnings_data(ticker)
             
             if not earnings_data:
                 return {
@@ -377,7 +383,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
                 "ticker": ticker
             }
     
-    def run_earnings_analysis_if_needed(self, ticker: str, force_update: bool = False) -> Dict:
+    async def run_earnings_analysis_if_needed(self, ticker: str, force_update: bool = False) -> Dict:
         """
         Check if earnings data is fresh and available.
         Only returns success if data is fresh (< 24 hours old).
@@ -393,7 +399,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
             logging.info(f"🔄 Checking earnings data freshness for ticker: {ticker}")
             
             # Check database status first
-            db_status = self.check_database_status(ticker, force_update)
+            db_status = await self.check_database_status(ticker, force_update)
             
             if db_status["status"] == "fresh":
                 logging.info(f"✅ Earnings data is fresh for {ticker}")
@@ -413,7 +419,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
                 if update_result == "data_fresh":
                     logging.info(f"✅ Earnings data became fresh during check for {ticker}")
                     # Get the fresh data
-                    fresh_data = self.get_earnings_data(ticker)
+                    fresh_data = await self.get_earnings_data(ticker)
                     return {
                         "status": "success",
                         "message": "Earnings data is fresh",
@@ -424,7 +430,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
                 elif update_result == "updated":
                     logging.info(f"✅ Successfully updated earnings data for {ticker}")
                     # Get the updated data
-                    updated_data = self.get_earnings_data(ticker)
+                    updated_data = await self.get_earnings_data(ticker)
                     return {
                         "status": "success",
                         "message": "Earnings data updated successfully",
@@ -435,7 +441,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
                 elif update_result == "waited_for_update":
                     logging.info(f"✅ Waited for another user to update {ticker}")
                     # Get the data that was updated by another user
-                    updated_data = self.get_earnings_data(ticker)
+                    updated_data = await self.get_earnings_data(ticker)
                     return {
                         "status": "success",
                         "message": "Earnings data updated by another user",
@@ -446,7 +452,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
                 elif update_result == "timeout":
                     logging.warning(f"⚠️ Timeout waiting for {ticker} update")
                     # Try to get whatever data is available
-                    available_data = self.get_earnings_data(ticker)
+                    available_data = await self.get_earnings_data(ticker)
                     return {
                         "status": "partial_success",
                         "message": "Timeout waiting for update, using available data",
@@ -499,7 +505,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
             logging.info(f"🔍 Processing query: '{query}' for ticker: {ticker}")
             
             # STEP 2: Check database status with extracted ticker
-            db_status = self.check_database_status(ticker, force_update)
+            db_status = await self.check_database_status(ticker, force_update)
             
             # STEP 3: Use ticker as constant variable throughout all if/else logic
             if db_status["status"] == "fresh":
@@ -540,25 +546,12 @@ Analyze the earnings and future development data to provide comprehensive insigh
         try:
             logging.info(f"📥 Directly calling DB Agent for {ticker}")
             
-            # Import and call DB Agent directly
-            from Earnings_and_Future_DB_Agent import EarningsAndFutureDatabaseStorage
-            
-            # Initialize DB Agent with same Redis config
-            db_agent = EarningsAndFutureDatabaseStorage(
-                db_type="redis",
-                host=self.redis_host,
-                port=self.redis_port,
-                username=self.redis_username,
-                password=self.redis_password
-            )
-            
+            # Use existing storage instance (already configured with shared clients or individual connection)
             # Call DB Agent for {ticker}
-            success = await db_agent.get_or_download_earnings_and_future(
+            success = await self.storage.get_or_download_earnings_and_future(
                 ticker=ticker,
                 collection_name=self.collection_name
             )
-            
-            db_agent.close()
             
             if success:
                 logging.info(f"✅ DB Agent successfully downloaded {ticker} earnings data")
@@ -588,7 +581,7 @@ Analyze the earnings and future development data to provide comprehensive insigh
         """
         try:
             # Get fresh earnings data from database for {ticker}
-            earnings_data = self.get_earnings_data(ticker)
+            earnings_data = await self.get_earnings_data(ticker)
             
             if earnings_data:
                 logging.info(f"✅ Processing query with fresh earnings data for {ticker}")

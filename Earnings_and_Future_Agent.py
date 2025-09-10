@@ -154,7 +154,7 @@ class EarningsAndFutureAgent:
         
         logging.info(f"🚀 Earnings and Future Agent initialized for user {self.user_id}, task {self.task_id}")
     
-    def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
+    async def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
         """
         Update progress in Frontend Redis - separate from earnings database.
         
@@ -184,7 +184,7 @@ class EarningsAndFutureAgent:
             progress_key = f"earnings_and_future_frontend_progress:{self.user_id}"
             
             # Get existing progress data
-            existing_data = self.frontend_redis.hgetall(progress_key)
+            existing_data = await self.frontend_redis.hgetall(progress_key)
             
             # Create updated data structure
             updated_data = {}
@@ -204,7 +204,7 @@ class EarningsAndFutureAgent:
             updated_data[f"{step}_{status}"] = json.dumps(progress_data)
             
             # Store updated data
-            self.frontend_redis.hset(progress_key, mapping=updated_data)
+            await self.frontend_redis.hset(progress_key, mapping=updated_data)
             
             logging.info(f"📊 Frontend Progress Update: {step} - {status} ({progress}%) - Agent: Earnings and Future")
             
@@ -273,17 +273,17 @@ class EarningsAndFutureAgent:
             Dict: Earnings read agent result
         """
         try:
-            self._update_progress("Query to Read Agent", "started", 40, f"Calling Read Agent for {ticker}")
+            await self._update_progress("Query to Read Agent", "started", 40, f"Calling Read Agent for {ticker}")
             
             # Enhance query with earnings focus
             enhanced_query = self._enhance_query_with_earnings_focus(preprocessed_query, ticker)
             
-            self._update_progress("Query to Read Agent", "in_progress", 45, "Enhanced query with earnings focus")
+            await self._update_progress("Query to Read Agent", "in_progress", 45, "Enhanced query with earnings focus")
             
             # Call Earnings Read Agent
             if self.earnings_read_agent:
                 result = await self.earnings_read_agent.process_natural_query(enhanced_query, ticker)
-                self._update_progress("Query to Read Agent", "completed", 50, "Successfully called Read Agent")
+                await self._update_progress("Query to Read Agent", "completed", 50, "Successfully called Read Agent")
             else:
                 # Fallback if Earnings Read Agent is not available
                 result = {
@@ -291,7 +291,7 @@ class EarningsAndFutureAgent:
                     "message": "Earnings Read Agent not available",
                     "data": {}
                 }
-                self._update_progress("Query to Read Agent", "failed", 50, "Earnings Read Agent not available")
+                await self._update_progress("Query to Read Agent", "failed", 50, "Earnings Read Agent not available")
             
             return {
                 "original_query": preprocessed_query,
@@ -300,7 +300,7 @@ class EarningsAndFutureAgent:
             }
             
         except Exception as e:
-            self._update_progress("Query to Read Agent", "failed", 50, str(e))
+            await self._update_progress("Query to Read Agent", "failed", 50, str(e))
             logging.error(f"❌ Error calling Earnings Read Agent: {e}")
             raise e
     
@@ -436,25 +436,25 @@ class EarningsAndFutureAgent:
             logging.info(f"   - Progress Tracking: Enabled")
             
             # Update progress
-            self._update_progress("starting analysis", "started", 0, "Initializing earnings analysis")
+            await self._update_progress("starting analysis", "started", 0, "Initializing earnings analysis")
             
             # Step 1: Preprocess query
-            self._update_progress("starting analysis", "started", 10, "Preprocessing query")
+            await self._update_progress("starting analysis", "started", 10, "Preprocessing query")
             preprocessed_query = self._preprocess_query(query)
             
             # Step 2: Process query
-            self._update_progress("processing query", "started", 20, "Processing earnings query")
+            await self._update_progress("processing query", "started", 20, "Processing earnings query")
             
             # Step 3: Call Earnings Read Agent
-            self._update_progress("calling earnings read agent", "started", 40, "Calling Earnings Read Agent")
+            await self._update_progress("calling earnings read agent", "started", 40, "Calling Earnings Read Agent")
             earnings_result = await self.call_earnings_read_agent(preprocessed_query, ticker)
             
             # Step 4: Extract insights
-            self._update_progress("extracting insights", "started", 60, "Extracting earnings insights")
+            await self._update_progress("extracting insights", "started", 60, "Extracting earnings insights")
             insights = self.extract_earnings_insights(earnings_result)
             
             # Step 5: Create final result
-            self._update_progress("creating final result", "started", 80, "Creating final earnings result")
+            await self._update_progress("creating final result", "started", 80, "Creating final earnings result")
             
             final_result = {
                 "original_query": query,
@@ -467,10 +467,10 @@ class EarningsAndFutureAgent:
             # Store result in frontend Redis
             if self.frontend_redis:
                 result_key = f"earnings_and_future_result:{self.user_id}"
-                self.frontend_redis.set(result_key, json.dumps(final_result), ex=86400)  # 24 hours
+                await self.frontend_redis.set(result_key, json.dumps(final_result), ex=86400)  # 24 hours
                 logging.info(f"✅ Earnings result stored in Frontend Redis: {result_key}")
             
-            self._update_progress("analysis complete", "completed", 100, "Earnings analysis completed")
+            await self._update_progress("analysis complete", "completed", 100, "Earnings analysis completed")
             
             logging.info(f"✅ Earnings and future analysis completed for {ticker}")
             logging.info(f"   - User ID: {self.user_id}")
@@ -480,7 +480,7 @@ class EarningsAndFutureAgent:
             return final_result
             
         except Exception as e:
-            self._update_progress("analysis failed", "failed", 100, str(e))
+            await self._update_progress("analysis failed", "failed", 100, str(e))
             logging.error(f"❌ Error in earnings analysis: {e}")
             raise e
     
@@ -503,12 +503,12 @@ class EarningsAndFutureAgent:
         
         return preprocessed
     
-    def close(self):
+    async def close(self):
         """Close Redis connections."""
         if self.frontend_redis:
-            self.frontend_redis.close()
+            await self.frontend_redis.close()
         if self.redis_client:
-            self.redis_client.close()
+            await self.redis_client.close()
         logging.info("🔚 Earnings and Future Agent closed")
 
 

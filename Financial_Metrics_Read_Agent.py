@@ -67,6 +67,7 @@ class FinancialMetricsReadAgent:
         if shared_clients:
             # Use shared Redis connection
             self.redis_client = shared_clients.get_stock_trend_redis()
+            self.collection_name = collection_name  # CRITICAL: Set collection_name for shared clients
             self.storage = FinancialMetricsDatabaseStorage(
                 db_type="redis",
                 shared_clients=shared_clients
@@ -524,12 +525,12 @@ class FinancialMetricsReadAgent:
             logging.error(f"❌ Error getting summary for {ticker}: {e}")
             return {"error": f"Summary failed for {ticker}: {str(e)}"}
     
-    def close(self):
+    async def close(self):
         """Close database connections."""
         if hasattr(self, 'storage'):
-            self.storage.close()
+            await self.storage.close()
         if hasattr(self, 'redis_client'):
-            self.redis_client.close()
+            await self.redis_client.close()
         logging.info("🔚 Financial Metrics Read Agent connections closed")
 
 

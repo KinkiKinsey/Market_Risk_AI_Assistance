@@ -94,7 +94,7 @@ class RedisFinancialMetricsStorage:
             logging.error(traceback.format_exc())
             raise
     
-    def store_financial_metrics_data(self, ticker: str, financial_metrics: Dict, metadata: Dict, collection_name: str = "financial_metrics") -> bool:
+    async def store_financial_metrics_data(self, ticker: str, financial_metrics: Dict, metadata: Dict, collection_name: str = "financial_metrics") -> bool:
         """
         Store financial metrics data in Redis.
         
@@ -121,10 +121,10 @@ class RedisFinancialMetricsStorage:
             }
             
             # Store in Redis
-            self.client.set(redis_key, json.dumps(data_to_store))
+            await self.client.set(redis_key, json.dumps(data_to_store))
             
             # Set expiry (30 days)
-            self.client.expire(redis_key, 30 * 24 * 60 * 60)
+            await self.client.expire(redis_key, 30 * 24 * 60 * 60)
             
             logging.info(f"✅ Successfully stored financial metrics data for {ticker}")
             logging.info(f"   - Redis key: {redis_key}")
@@ -137,7 +137,7 @@ class RedisFinancialMetricsStorage:
             logging.error(f"❌ Failed to store financial metrics data for {ticker}: {e}")
             return False
     
-    def get_financial_metrics_data(self, ticker: str, collection_name: str = "financial_metrics") -> Optional[Dict]:
+    async def get_financial_metrics_data(self, ticker: str, collection_name: str = "financial_metrics") -> Optional[Dict]:
         """
         Retrieve financial metrics data from Redis.
         
@@ -152,7 +152,7 @@ class RedisFinancialMetricsStorage:
             redis_key = f"{collection_name}:{ticker.upper()}"
             
             # Get data from Redis
-            stored_data = self.client.get(redis_key)
+            stored_data = await self.client.get(redis_key)
             
             if stored_data:
                 data = json.loads(stored_data)
@@ -219,10 +219,10 @@ class RedisFinancialMetricsStorage:
             logging.error(f"❌ Error deleting financial metrics data for {ticker}: {e}")
             return False
     
-    def close(self):
+    async def close(self):
         """Close Redis connection."""
         if self.client:
-            self.client.close()
+            await self.client.close()
             logging.info("🔚 Redis connection closed")
 
 
@@ -264,7 +264,7 @@ class FinancialMetricsDatabaseStorage:
         
         logging.info(f"✅ Financial Metrics Database Storage initialized with {self.db_type}")
     
-    def store_financial_metrics_data(self, ticker: str, financial_metrics: Dict, metadata: Dict, collection_name: str = "Financial_Metrics_INFOS") -> bool:
+    async def store_financial_metrics_data(self, ticker: str, financial_metrics: Dict, metadata: Dict, collection_name: str = "Financial_Metrics_INFOS") -> bool:
         """
         Store financial metrics data in the database.
         
@@ -277,14 +277,14 @@ class FinancialMetricsDatabaseStorage:
         Returns:
             bool: True if successful, False otherwise
         """
-        return self.storage.store_financial_metrics_data(
+        return await self.storage.store_financial_metrics_data(
             ticker=ticker,
             financial_metrics=financial_metrics,
             metadata=metadata,
             collection_name=collection_name
         )
     
-    def get_financial_metrics_data(self, ticker: str, collection_name: str = "Financial_Metrics_INFOS") -> Optional[Dict]:
+    async def get_financial_metrics_data(self, ticker: str, collection_name: str = "Financial_Metrics_INFOS") -> Optional[Dict]:
         """
         Get financial metrics data from database.
         
@@ -295,7 +295,7 @@ class FinancialMetricsDatabaseStorage:
         Returns:
             Optional[Dict]: Financial metrics data or None if not found
         """
-        return self.storage.get_financial_metrics_data(ticker, collection_name)
+        return await self.storage.get_financial_metrics_data(ticker, collection_name)
     
     def list_financial_metrics_tickers(self, collection_name: str = "Financial_Metrics_INFOS") -> List[str]:
         """List all tickers with financial metrics data."""
@@ -335,7 +335,7 @@ class FinancialMetricsDatabaseStorage:
             logging.info(f"   - Price data: {'✅' if result.get('financial_metrics', {}).get('price', {}).get('latest_price') else '❌'}")
             
             # Store the fresh data in database
-            success = self.store_financial_metrics_data(
+            success = await self.store_financial_metrics_data(
                 ticker=ticker,
                 financial_metrics=result['financial_metrics'],
                 metadata=result['metadata'],
@@ -373,7 +373,7 @@ class FinancialMetricsDatabaseStorage:
             logging.info(f"🔍 Getting financial metrics data for ticker: {ticker}")
             
             # Check if data exists in database
-            existing_data = self.get_financial_metrics_data(ticker, collection_name)
+            existing_data = await self.get_financial_metrics_data(ticker, collection_name)
             
             if existing_data:
                 # ✅ Data exists - check metadata for update time
@@ -393,7 +393,7 @@ class FinancialMetricsDatabaseStorage:
                             success = await self.download_and_store_ticker(ticker, collection_name)
                             
                             if success:
-                                return self.get_financial_metrics_data(ticker, collection_name)
+                                return await self.get_financial_metrics_data(ticker, collection_name)
                             else:
                                 logging.error(f"❌ Failed to download fresh data for {ticker}")
                                 return existing_data  # Return old data if fresh download fails
@@ -415,7 +415,7 @@ class FinancialMetricsDatabaseStorage:
                 success = await self.download_and_store_ticker(ticker, collection_name)
                 
                 if success:
-                    return self.get_financial_metrics_data(ticker, collection_name)
+                    return await self.get_financial_metrics_data(ticker, collection_name)
                 else:
                     logging.error(f"❌ Failed to download fresh data for {ticker}")
                     return None
@@ -424,13 +424,13 @@ class FinancialMetricsDatabaseStorage:
             logging.error(f"❌ Error in get_or_download_financial_metrics for {ticker}: {e}")
             return None
     
-    def close(self):
+    async def close(self):
         """Close database connections."""
         if hasattr(self, 'storage'):
-            self.storage.close()
+            await self.storage.close()
 
 
-def main():
+async def main():
     """Main function for testing the Financial Metrics Database Storage."""
     # Configure logging
     logging.basicConfig(
@@ -499,7 +499,7 @@ def main():
             logging.info(f"📈 RETRIEVING FINANCIAL METRICS DATA")
             logging.info(f"   - Ticker: {args.ticker.upper()}")
             
-            data = storage.get_financial_metrics_data(args.ticker.upper(), DB_COLLECTION)
+            data = await storage.get_financial_metrics_data(args.ticker.upper(), DB_COLLECTION)
             if data:
                 logging.info("✅ FINANCIAL METRICS DATA RETRIEVED SUCCESSFULLY")
                 logging.info(f"   - Financial metrics: {'✅' if data.get('financial_metrics', {}).get('financial_metrics') else '❌'}")
@@ -557,4 +557,5 @@ if __name__ == "__main__":
     # python Financial_Metrics_DB_Agent.py TSLA
     # python Financial_Metrics_DB_Agent.py --list-tickers
     # python Financial_Metrics_DB_Agent.py AAPL --get-data
-    main()
+    import asyncio
+    asyncio.run(main())

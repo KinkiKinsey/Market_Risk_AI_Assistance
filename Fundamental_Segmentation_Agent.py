@@ -165,7 +165,7 @@ class FundamentalSegmentationAgent:
         
         logging.info(f"🚀 Fundamental Segmentation Agent initialized for user {self.user_id}, task {self.task_id}")
     
-    def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
+    async def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
         """
         Update progress in Frontend Redis - separate from revenue segmentation database.
         
@@ -195,7 +195,7 @@ class FundamentalSegmentationAgent:
             progress_key = f"fundamental_segmentation_frontend_progress:{self.user_id}"
             
             # Get existing progress data
-            existing_data = self.frontend_redis.hgetall(progress_key)
+            existing_data = await self.frontend_redis.hgetall(progress_key)
             
             # Create updated data structure
             updated_data = {}
@@ -217,10 +217,10 @@ class FundamentalSegmentationAgent:
             
             # Store all data back to Frontend Redis
             if updated_data:
-                self.frontend_redis.hset(progress_key, mapping=updated_data)
+                await self.frontend_redis.hset(progress_key, mapping=updated_data)
             
             # Set expiry to clean up old progress (24 hours)
-            self.frontend_redis.expire(progress_key, 86400)
+            await self.frontend_redis.expire(progress_key, 86400)
             
             logging.info(f"📊 Frontend Progress Update: {step} - {status} ({progress}%) - Agent: Fundamental Segmentation")
             
@@ -327,12 +327,12 @@ Provide only the refined query, no explanations.
             Dict: Revenue read agent result
         """
         try:
-            self._update_progress("Query to Revenue Read Agent", "started", 40, f"Calling Revenue Read Agent for {ticker}")
+            await self._update_progress("Query to Revenue Read Agent", "started", 40, f"Calling Revenue Read Agent for {ticker}")
             
             # Call Revenue Segmentation Read Agent
             if self.revenue_read_agent:
                 result = await self.revenue_read_agent.process_natural_query(refined_query, ticker)
-                self._update_progress("Query to Revenue Read Agent", "completed", 50, "Successfully called Revenue Read Agent")
+                await self._update_progress("Query to Revenue Read Agent", "completed", 50, "Successfully called Revenue Read Agent")
             else:
                 # Fallback if Revenue Read Agent is not available
                 result = {
@@ -340,7 +340,7 @@ Provide only the refined query, no explanations.
                     "message": "Revenue Read Agent not available",
                     "data": {}
                 }
-                self._update_progress("Query to Revenue Read Agent", "failed", 50, "Revenue Read Agent not available")
+                await self._update_progress("Query to Revenue Read Agent", "failed", 50, "Revenue Read Agent not available")
             
             return {
                 "original_query": refined_query,
@@ -414,10 +414,10 @@ Focus on fundamental business implications, not just revenue numbers.
             Dict: Complete analysis result with fundamental insights and revenue analysis
         """
         try:
-            self._update_progress("starting analysis", "started", 10)
+            await self._update_progress("starting analysis", "started", 10)
             
             # Step 1: Direct query pass-through (no LLM preprocessing)
-            self._update_progress("direct query pass-through", "started", 20)
+            await self._update_progress("direct query pass-through", "started", 20)
             preprocessed_query = query  # Direct pass-through, no transformation
             
             # Log the fundamental analysis
@@ -425,18 +425,18 @@ Focus on fundamental business implications, not just revenue numbers.
             logging.info(f"🎯 Direct Pass-Through: {preprocessed_query}")
             
             # Step 2: Call Revenue Read Agent with original query (direct pass-through)
-            self._update_progress("calling revenue read agent", "started", 40)
+            await self._update_progress("calling revenue read agent", "started", 40)
             revenue_read_wrapper = await self.call_revenue_read_agent(preprocessed_query, ticker)
             
             # Extract the revenue analysis result
             revenue_read_result = revenue_read_wrapper.get("revenue_read_result", "No result available")
             
             # Step 3: Generate fundamental insights
-            self._update_progress("generating fundamental insights", "started", 80)
+            await self._update_progress("generating fundamental insights", "started", 80)
             fundamental_insights = self.generate_fundamental_insights(query, preprocessed_query, revenue_read_result, ticker)
             
             # Step 4: Create final result
-            self._update_progress("creating final result", "started", 95)
+            await self._update_progress("creating final result", "started", 95)
             result = {
                 "original_query": query,
                 "ticker": ticker,
@@ -448,9 +448,9 @@ Focus on fundamental business implications, not just revenue numbers.
             }
             
             # Store result in Frontend Redis (separate from revenue segmentation database)
-            storage_success = self._store_fundamental_result(result, ticker)
+            storage_success = await self._store_fundamental_result(result, ticker)
             
-            self._update_progress("analysis complete", "completed", 100)
+            await self._update_progress("analysis complete", "completed", 100)
             
             logging.info(f"✅ Fundamental segmentation analysis completed for {ticker}")
             logging.info(f"   - User ID: {self.user_id}")
@@ -480,7 +480,7 @@ Focus on fundamental business implications, not just revenue numbers.
         else:
             return "General Market Event"
     
-    def _store_fundamental_result(self, result: Dict, ticker: str) -> bool:
+    async def _store_fundamental_result(self, result: Dict, ticker: str) -> bool:
         """
         Store fundamental segmentation result in Frontend Redis.
         
@@ -511,10 +511,10 @@ Focus on fundamental business implications, not just revenue numbers.
             fundamental_result_key = f"fundamental_segmentation_result:{self.user_id}"
             
             # Store in Frontend Redis (overwrites previous result for same user)
-            self.frontend_redis.set(fundamental_result_key, json.dumps(fundamental_result))
+            await self.frontend_redis.set(fundamental_result_key, json.dumps(fundamental_result))
             
             # Set expiry (30 days)
-            self.frontend_redis.expire(fundamental_result_key, 2592000)  # 30 days in seconds
+            await self.frontend_redis.expire(fundamental_result_key, 2592000)  # 30 days in seconds
             
             logging.info(f"✅ Fundamental result stored in Frontend Redis: {fundamental_result_key}")
             return True
@@ -592,10 +592,10 @@ Focus on fundamental business implications, not just revenue numbers.
             logging.error(f"❌ Failed to clear fundamental results: {e}")
             return False
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
         if self.revenue_read_agent:
-            self.revenue_read_agent.close()
+            await self.revenue_read_agent.close()
         logging.info("🔚 Fundamental Segmentation Agent closed")
 
     def get_workflow_progress(self) -> dict:

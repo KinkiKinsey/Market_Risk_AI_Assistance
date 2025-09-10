@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&Q.AI - Impact Chain Analysis Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Large Logo Section - Invisible Background */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 20px;
+            /* NO BACKGROUND - Invisible chunk */
+            background: transparent;
+            border: none;
+            border-radius: 0;
+        }
+
+        .logo-svg {
+            width: 500px;
+            height: 200px;
+            filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8));
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8)); }
+            50% { filter: drop-shadow(0 0 60px rgba(118, 75, 162, 1)); }
+        }
+
+        .logo-text {
+            font-size: 48px;
+            font-weight: 200;
+            color: #ffffff;
+            letter-spacing: 12px;
+            margin-top: 30px;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+        }
+
+        .logo-description {
+            font-size: 20px;
+            font-weight: 100;
+            color: #a0aec0;
+            letter-spacing: 4px;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+
+        .ticker-bar {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticker-symbol {
+            font-size: 2em;
+            font-weight: 600;
+            color: #667eea;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        /* Single Ring Design */
+        .ring-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .single-ring {
+            width: 25px;
+            height: 25px;
+            border: 2px solid;
+            border-radius: 50%;
+            position: relative;
+            animation: ring-pulse 2s ease-in-out infinite;
+        }
+
+        .ring-quantitative {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+        }
+
+        .ring-qualitative {
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.6);
+        }
+
+        @keyframes ring-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        .ring-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ring-glow 3s ease-in-out infinite;
+        }
+
+        .ring-glow-quantitative {
+            border: 1px solid #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ring-glow-qualitative {
+            border: 1px solid #764ba2;
+            box-shadow: 0 0 20px rgba(118, 75, 162, 0.4);
+        }
+
+        @keyframes ring-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Section Titles with Rings */
+        .section-title-with-ring {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .section-title-text {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .color-legend {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .legend-title {
+            font-size: 1.5em;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .legend-subtitle {
+            font-size: 1em;
+            color: #a0aec0;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-color.long-term-up {
+            background: linear-gradient(135deg, #3498db, #5dade2);
+        }
+
+        .legend-color.long-term-down {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .legend-color.short-term-up {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .legend-color.short-term-down {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .legend-text {
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .chain-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .chain-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .chain-title {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .direction-badge {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .direction-badge.short-term-up {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .direction-badge.short-term-down {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .direction-badge.long-term-up {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .direction-badge.long-term-down {
+            background: rgba(230, 126, 34, 0.2);
+            color: #e67e22;
+            border: 1px solid #e67e22;
+        }
+
+        .chain-content {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #cbd5e0;
+        }
+
+        .mermaid-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .summary-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #cbd5e0;
+        }
+
+        .summary-content p {
+            margin-bottom: 15px;
+        }
+
+        /* TWO COLUMN LAYOUT FOR SELL/BUY */
+        .sell-buy-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .sell-side-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .buy-side-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .side-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sell-side-title {
+            color: #e74c3c;
+        }
+
+        .buy-side-title {
+            color: #27ae60;
+        }
+
+        .side-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .side-content p {
+            margin-bottom: 12px;
+        }
+
+        /* NEW: FOUR PANEL LAYOUT FOR RISK/REWARD */
+        .risk-reward-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .risk-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reward-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-value {
+            font-size: 3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* NEW COLOR SCHEME: Higher scores = Green, Lower scores = Red */
+        .metric-value.excellent {
+            color: #27ae60;
+            text-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+        }
+
+        .metric-value.good {
+            color: #2ecc71;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .metric-value.warning {
+            color: #f39c12;
+            text-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .metric-value.danger {
+            color: #e74c3c;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* NEW: TWO COLUMN LAYOUT FOR PRICE IN/PRICE OUT */
+        .price-analysis-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .price-in-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-out-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .price-in-title {
+            color: #27ae60;
+        }
+
+        .price-out-title {
+            color: #e74c3c;
+        }
+
+        .price-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        /* NEW: Dynamic Reasoning Bar */
+        .reasoning-container {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .reasoning-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .reasoning-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .reasoning-text {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+            text-align: justify;
+        }
+
+        .conclusion-card {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .conclusion-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .conclusion-text {
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 0.9em;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sell-buy-container {
+                grid-template-columns: 1fr;
+            }
+            .risk-reward-grid {
+                grid-template-columns: 1fr;
+            }
+            .risk-panel, .reward-panel {
+                grid-template-columns: 1fr;
+            }
+            .price-analysis-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Large Logo Section - Invisible Background -->
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="cleanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#667eea;#764ba2;#667eea" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#764ba2;#667eea;#764ba2" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                    </linearGradient>
+                    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge> 
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- First Ellipse (Quantitative) -->
+                <ellipse cx="150" cy="65" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+
+                <!-- Second Ellipse (Qualitative) -->
+                <ellipse cx="210" cy="85" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                </ellipse>
+
+                <!-- Intersection area highlight -->
+                <ellipse cx="180" cy="75" rx="20" ry="12" 
+                      fill="url(#cleanGradient)" 
+                      opacity="0.25"
+                      filter="url(#subtleGlow)">
+                    <animate attributeName="opacity" values="0.25;0.4;0.25" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="logo-text">Q&Q.AI</div>
+            <div class="logo-description">Quantitative & Qualitative AI Investment Analysis System</div>
+        </div>
+
+        <!-- Ticker info bar -->
+        <div class="ticker-bar">
+            <div class="ticker-symbol">BBW</div>
+            <div>Analysis Date: 2025-09-10</div>
+            <div>6 Impact Chains Analyzed</div>
+        </div>
+
+        <!-- Color Legend -->
+        
+        <div class="color-legend">
+            <h3 class="legend-title">Impact Chain Direction Legend</h3>
+            <p class="legend-subtitle">Different colors represent different investment directions and time horizons</p>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color long-term-up"></div>
+                    <span class="legend-text">Long Term Up</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color long-term-down"></div>
+                    <span class="legend-text">Long Term Down</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-up"></div>
+                    <span class="legend-text">Short Term Up</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-down"></div>
+                    <span class="legend-text">Short Term Down</span>
+                </div>
+            </div>
+        </div>
+    
+
+        <!-- Impact Chains Section - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-qualitative">
+                    <div class="ring-glow ring-glow-qualitative"></div>
+                </div>
+                <div class="section-title-text">Qualitative AI</div>
+            </div>
+        
+            
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">1</div>
+                        <div class="chain-title">Digital transformation ROI analysis and e-commerce growth metrics</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">Digital transformation ROI analysis and e-commerce growth metrics → Market data shows similar digital transformation events caused +5.439% from 2025-05-21 to 2025-05-29 → Improved operational efficiency (+11.9% revenue growth) → Enhanced investor confidence (+42.7% EPS growth) → Long Term Up</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: Digital transformation ROI ana..."]
+    A[Digital transformation ROI analysis and e-comme...]
+    B[Market data shows similar digital transformatio...]
+    C[Improved operational efficiency +11.9 revenue g...]
+    D[Enhanced investor confidence +42.7 EPS growth]
+    E[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">2</div>
+                        <div class="chain-title">International expansion success evaluation</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">International expansion success evaluation → Market Data Reference (+5.439% return from 2025-05-21 to 2025-05-29) → Capital-light model margin expansion (+33% pretax income growth) → Strategic partnership optimization driving 11.9% revenue growth → Long Term Up</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: International expansion succes..."]
+    A[International expansion success evaluation]
+    B[Market Data Reference +5.439 return from 2025-0...]
+    C[Capital-light model margin expansion +33 pretax...]
+    D[Strategic partnership optimization driving 11.9...]
+    E[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">3</div>
+                        <div class="chain-title">Retail traffic sustainability concerns and mall dependency vulnerabilities</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">Retail traffic sustainability concerns and mall dependency vulnerabilities → Market data shows similar retail real estate challenges caused -4.161% from 2025-04-02 to 2025-04-08 → Reduced foot traffic and consumer spending patterns → Supply chain disruptions from tariff implementation → Margin compression and revenue pressure → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 6: Retail traffic sustainability ..."]
+    A[Retail traffic sustainability concerns and mall...]
+    B[Market data shows similar retail real estate ch...]
+    C[Reduced foot traffic and consumer spending patt...]
+    D[Supply chain disruptions from tariff implementa...]
+    E[Margin compression and revenue pressure]
+    F[Short Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style F fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">4</div>
+                        <div class="chain-title">Wholesale channel margin compression risks</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">Wholesale channel margin compression risks → Market data shows similar margin pressures caused -4.161% from 2025-04-02 to 2025-04-08 → Reduced profitability (-3-5% margin impact) → Lower earnings guidance → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 4: Wholesale channel margin compr..."]
+    A[Wholesale channel margin compression risks]
+    B[Market data shows similar margin pressures caus...]
+    C[Reduced profitability -3-5 margin impact]
+    D[Final Decision]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style D fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">5</div>
+                        <div class="chain-title">Inflationary cost pressures on production margins</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">Inflationary cost pressures on production margins → Market data shows similar inflationary periods caused -4.161% from 2025-04-02 to 2025-04-08 → Production margin compression (-3% margin impact) → Pricing strategy challenges with consumer resistance → Reduced profitability and earnings pressure → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: Inflationary cost pressures on..."]
+    A[Inflationary cost pressures on production margins]
+    B[Market data shows similar inflationary periods ...]
+    C[Production margin compression -3 margin impact]
+    D[Pricing strategy challenges with consumer resis...]
+    E[Final Decision]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">6</div>
+                        <div class="chain-title">Insider selling patterns and valuation concerns</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">Insider selling patterns and valuation concerns → Market data shows similar events caused -1.866% from 2025-03-05 to 2025-03-17 → Investor confidence erosion (-2% institutional selling) → Valuation multiple compression (-3% P/E ratio) → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: Insider selling patterns and v..."]
+    A[Insider selling patterns and valuation concerns]
+    B[Market data shows similar events caused -1.866 ...]
+    C[Investor confidence erosion -2 institutional se...]
+    D[Valuation multiple compression -3 PE ratio]
+    E[Short Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+        </div>
+
+        <!-- Sell & Buy Analysis - TWO COLUMN LAYOUT -->
+        <div class="section">
+            <h2 class="section-title">Sell & Buy Analysis Summary</h2>
+            <div class="sell-buy-container">
+                <div class="sell-side-card">
+                    <h3 class="side-title sell-side-title">Sell Side Analysis</h3>
+                    <div class="side-content">
+                        <p>Execution risks in technology integration and digital marketing</p>
+<p>Operational control limitations and partner dependency risks</p>
+<p>Mall-dependent locations vulnerable to retail real estate challenges</p>
+<p>Potential margin compression and brand dilution in new channels</p>
+<p>Rising petroleum, material, transportation, and labor costs</p>
+<p>Risk of alienating core children's market segment</p>
+<p>Insider selling activity signaling potential valuation concerns</p>
+
+                    </div>
+                </div>
+                <div class="buy-side-card">
+                    <h3 class="side-title buy-side-title">Buy Side Analysis</h3>
+                    <div class="side-content">
+                        <p>Scalable omnichannel initiatives driving consumer base expansion</p>
+<p>Capital-light international expansion targeting 60+ new locations</p>
+<p>3% traffic growth outpacing national retail decline with 25%+ margins</p>
+<p>Revenue diversification through mini beans and wholesale channels</p>
+<p>Successful multigenerational brand extension with adult collectors representing 40%</p>
+<p>Debt-free balance sheet with $55.65M TTM earnings supporting investments</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Logic Summary -->
+        <div class="section">
+            <h2 class="section-title">Business Logic Summary</h2>
+            <div class="summary-card">
+                <div class="summary-content">
+                    <p>['Unique experiential retail model with customer personalization creating emotional connections', 'Economic moat from distinctive customer experience competitors cannot easily replicate', 'Omnichannel strategy using physical stores as distribution centers for online orders', 'High-margin customization services and effective inventory management through vertical retail', 'Swift gift card redemptions where customers typically spend more than card value', 'Strong licensing partnerships with 75+ collaborators expanding product offerings']</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusion Analysis - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-quantitative">
+                    <div class="ring-glow ring-glow-quantitative"></div>
+                </div>
+                <div class="section-title-text">Quantitative AI</div>
+            </div>
+        
+
+            <!-- KEEP: Four Panel Risk/Reward Layout -->
+            <div class="risk-reward-grid">
+                <!-- Risk Panel -->
+                <div class="risk-panel">
+                    <div class="metric-card">
+                        <div class="metric-value danger">0.75/1.0</div>
+                        <div class="metric-label">Short Term Risk Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value excellent">0.3/1.0</div>
+                        <div class="metric-label">Long Term Risk Score</div>
+                    </div>
+                </div>
+                
+                <!-- Reward Panel -->
+                <div class="reward-panel">
+                    <div class="metric-card">
+                        <div class="metric-value warning">0.35/1.0</div>
+                        <div class="metric-label">Short Term Reward Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value excellent">0.7/1.0</div>
+                        <div class="metric-label">Long Term Reward Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Two Column Price In/Price Out Layout -->
+            <div class="price-analysis-container">
+                <div class="price-in-card">
+                    <h3 class="price-title price-in-title">Currently Priced In</h3>
+                    <div class="price-content">
+                        <p>Current price reflects significant short-term headwinds including retail traffic concerns, wholesale margin compression (-3-5% impact), inflationary pressures (CPI +0.57%), and insider selling patterns (-1.866% historical impact). The market has priced in most immediate negative catalysts with 4 out of 6 chains indicating Short Term Down direction.</p>
+                    </div>
+                </div>
+                <div class="price-out-card">
+                    <h3 class="price-title price-out-title">Not Yet Priced In</h3>
+                    <div class="price-content">
+                        <p>Market hasn't fully priced successful digital transformation (+5.439% historical returns) and international expansion potential (+33% pretax income growth). Once these long-term catalysts materialize, stock could appreciate 20-30% based on similar historical uptrend patterns showing 5.4-12% returns over 8-15 day periods.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Dynamic Reasoning Bar -->
+            <div class="reasoning-container">
+                <h3 class="reasoning-title">Dynamic Rating Analysis Explanation</h3>
+                <div class="reasoning-bar">
+                    <div class="reasoning-text">Short-term risk elevated (0.75) due to multiple headwinds already impacting price with historical downtrends showing -4.161% returns. Short-term reward limited (0.35) as negative catalysts dominate near-term outlook. Long-term risk low (0.30) given strong economic moat and digital transformation success. Long-term reward high (0.70) based on historical uptrend patterns showing +5.439% returns and strong fundamentals (11.9% revenue growth, 42.7% EPS growth potential).</div>
+                </div>
+            </div>
+
+ 
+    
+
+            <!-- Key Catalysts -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">Key Catalysts</h3>
+                <div class="conclusion-text">Three key catalysts: 1) Successful digital transformation execution driving operational efficiency gains, 2) International expansion success through capital-light partnerships, 3) Resolution of inflationary cost pressures through pricing strategy optimization. If these catalysts materialize positively, they could reverse current negative sentiment and unlock the company's long-term growth potential, fundamentally changing the investment narrative.</div>
+            </div>
+
+            <!-- Short Term Impact -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">Short Term Impact</h3>
+                <div class="conclusion-text">NOT SAFE in current position. The company faces significant short-term headwinds with 4 out of 6 chains indicating Short Term Down direction. Key risks include retail traffic sustainability concerns (-4.161% historical impact), wholesale margin compression (-3-5% margin impact), inflationary cost pressures (CPI +0.57%), and insider selling patterns (-1.866% historical impact). These factors create immediate downward pressure on earnings and valuation multiples.</div>
+            </div>
+
+            <!-- Long Term Outlook -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">Long Term Outlook</h3>
+                <div class="conclusion-text">SAFE for long-term investment. Despite short-term challenges, the company's strong economic moat provides resilience. Digital transformation initiatives show +5.439% historical returns with +11.9% revenue growth and +42.7% EPS growth potential. International expansion through capital-light model drives +33% pretax income growth. The unique experiential retail model and omnichannel strategy create sustainable competitive advantages that competitors cannot easily replicate.</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Generated by Q&Q.AI - Quantitative & Qualitative AI Investment Analysis System</p>
+            <p>Report generated on: 2025-09-10 18:46:19</p>
+            <p>© 2025 Q&Q.AI - Bridging Data Intelligence</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#667eea',
+                secondaryColor: '#764ba2',
+                background: 'rgba(255, 255, 255, 0.05)',
+                mainBkg: 'rgba(255, 255, 255, 0.05)',
+                secondBkg: 'rgba(102, 126, 234, 0.1)',
+                fontFamily: 'Segoe UI',
+                fontSize: '14px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

@@ -276,7 +276,9 @@ class ManagerAgent:
         
         # Show semaphore status before execution
         if shared_clients is not None:
-            print(f"🤖 Using shared clients: {'✅' if shared_clients.get_llm_agent() else '❌'}")
+            llm_agent = shared_clients.get_llm_agent()
+            redis_status = shared_clients.get_frontend_redis() is not None
+            print(f"🤖 Using shared clients: {'✅' if llm_agent or redis_status else '❌'}")
             status = shared_clients.get_status()
             print(f"🔒 OpenAI Semaphore: {status['openai_semaphore_value']}")
             print(f"🔒 DeepSeek Semaphore: {status['deepseek_semaphore_value']}")
@@ -294,7 +296,6 @@ class ManagerAgent:
                 )
             else:
                 a = MarketExpectationAgent(
-                    shared_clients=shared_clients,
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password']
@@ -313,7 +314,7 @@ class ManagerAgent:
                 print(f"❌ Market Agent error: {e}")
                 return f"Market Agent error: {str(e)}"
             finally:
-                a.close()
+                await a.close()
 
         async def run_revenue(q):
             from Fundamental_Segmentation_Agent import FundamentalSegmentationAgent
@@ -323,7 +324,6 @@ class ManagerAgent:
                 )
             else:
                 a = FundamentalSegmentationAgent(
-                    shared_clients=shared_clients,
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password']
@@ -342,7 +342,7 @@ class ManagerAgent:
                 print(f"❌ Revenue Agent error: {e}")
                 return f"Revenue Agent error: {str(e)}"
             finally:
-                a.close()
+                await a.close()
 
         async def run_macro(q):
             from Macro_Analyst_Agent import MacroAnalystAgent
@@ -354,7 +354,6 @@ class ManagerAgent:
                 )
             else:
                 a = MacroAnalystAgent(
-                    shared_clients=shared_clients,
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password'],
@@ -390,7 +389,6 @@ class ManagerAgent:
                 )
             else:
                 a = FinancialMetricsAnalystAgent(
-                    shared_clients=shared_clients,
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password'],
@@ -411,7 +409,7 @@ class ManagerAgent:
                 print(f"❌ Financial Agent error: {e}")
                 return f"Financial Agent error: {str(e)}"
             finally:
-                a.close()
+                await a.close()
 
         async def run_earnings(q):
             from Earnings_and_Future_Agent import EarningsAndFutureAgent
@@ -422,7 +420,6 @@ class ManagerAgent:
                 )
             else:
                 a = EarningsAndFutureAgent(
-                    shared_clients=shared_clients,
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password'],
@@ -442,7 +439,7 @@ class ManagerAgent:
                 print(f"❌ Earnings Agent error: {e}")
                 return f"Earnings Agent error: {str(e)}"
             finally:
-                a.close()
+                await a.close()
 
         # Schedule all selected agents at once (fan-out)
         for decision, name, q in zip(Decision_List, Agent_List, Query_List):
@@ -533,7 +530,11 @@ class ManagerAgent:
         
         # Step 3: Call agents dynamically
         print("\n3️⃣ Calling Agents Dynamically...")
-        final_results = await self.call_agents_dynamically(decision_list, agent_list, query_list, ticker)
+        # Get shared_clients from global instance if not provided
+        if shared_clients is None:
+            from shared_clients import shared_clients as global_shared_clients
+            shared_clients = global_shared_clients
+        final_results = await self.call_agents_dynamically(decision_list, agent_list, query_list, ticker, shared_clients)
         
         # Step 4: Create structured output
         print("\n4️⃣ Creating Structured Output...")

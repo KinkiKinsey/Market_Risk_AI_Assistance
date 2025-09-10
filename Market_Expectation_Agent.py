@@ -155,7 +155,7 @@ class MarketExpectationAgent:
         
         logging.info(f"🚀 Market Expectation Agent initialized for user {self.user_id}, task {self.task_id}")
     
-    def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
+    async def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
         """
         Update progress in Frontend Redis - separate from stock trend database.
         
@@ -185,7 +185,7 @@ class MarketExpectationAgent:
             progress_key = f"market_expectation_frontend_progress:{self.user_id}"
             
             # Get existing progress data
-            existing_data = self.frontend_redis.hgetall(progress_key)
+            existing_data = await self.frontend_redis.hgetall(progress_key)
             
             # Create updated data structure
             updated_data = {}
@@ -207,10 +207,10 @@ class MarketExpectationAgent:
             
             # Store all data back to Frontend Redis
             if updated_data:
-                self.frontend_redis.hset(progress_key, mapping=updated_data)
+                await self.frontend_redis.hset(progress_key, mapping=updated_data)
             
             # Set expiry to clean up old progress (24 hours)
-            self.frontend_redis.expire(progress_key, 86400)
+            await self.frontend_redis.expire(progress_key, 86400)
             
             logging.info(f"📊 Frontend Progress Update: {step} - {status} ({progress}%) - Agent: Market Expectation")
             
@@ -251,7 +251,7 @@ class MarketExpectationAgent:
         except Exception as e:
             logging.error(f"❌ Failed to clear frontend progress: {e}")
     
-    def _store_market_result(self, result: dict, ticker: str) -> bool:
+    async def _store_market_result(self, result: dict, ticker: str) -> bool:
         """
         Store market expectation result in Frontend Redis.
         
@@ -282,10 +282,10 @@ class MarketExpectationAgent:
             market_result_key = f"market_expectation_result:{self.user_id}"
             
             # Store in Frontend Redis (overwrites previous result for same user)
-            self.frontend_redis.set(market_result_key, json.dumps(market_result))
+            await self.frontend_redis.set(market_result_key, json.dumps(market_result))
             
             # Set expiry (30 days)
-            self.frontend_redis.expire(market_result_key, 2592000)  # 30 days in seconds
+            await self.frontend_redis.expire(market_result_key, 2592000)  # 30 days in seconds
             
             logging.info(f"✅ Market result stored in Frontend Redis: {market_result_key}")
             return True
@@ -443,17 +443,17 @@ class MarketExpectationAgent:
             Dict: Stock read agent result
         """
         try:
-            self._update_progress("Query to Read Agent", "started", 40, f"Calling Read Agent for {ticker}")
+            await self._update_progress("Query to Read Agent", "started", 40, f"Calling Read Agent for {ticker}")
             
             # Enhance query with trend direction
             enhanced_query = self._enhance_query_with_trend_direction(preprocessed_query, ticker)
             
-            self._update_progress("Query to Read Agent", "in_progress", 45, "Enhanced query with trend direction")
+            await self._update_progress("Query to Read Agent", "in_progress", 45, "Enhanced query with trend direction")
             
             # Call Stock Read Agent
             if self.stock_read_agent:
                 result = await self.stock_read_agent.process_natural_query(enhanced_query, ticker)
-                self._update_progress("Query to Read Agent", "completed", 50, "Successfully called Read Agent")
+                await self._update_progress("Query to Read Agent", "completed", 50, "Successfully called Read Agent")
             else:
                 # Fallback if Stock Read Agent is not available
                 result = {
@@ -461,7 +461,7 @@ class MarketExpectationAgent:
                     "message": "Stock Read Agent not available",
                     "data": {}
                 }
-                self._update_progress("Query to Read Agent", "failed", 50, "Stock Read Agent not available")
+                await self._update_progress("Query to Read Agent", "failed", 50, "Stock Read Agent not available")
             
             return {
                 "original_query": preprocessed_query,
@@ -470,7 +470,7 @@ class MarketExpectationAgent:
             }
             
         except Exception as e:
-            self._update_progress("Query to Read Agent", "failed", 50, str(e))
+            await self._update_progress("Query to Read Agent", "failed", 50, str(e))
             logging.error(f"❌ Error calling Stock Read Agent: {e}")
             raise e
     
@@ -802,10 +802,10 @@ class MarketExpectationAgent:
             Dict: Complete analysis result with Stock Read Agent analysis only
         """
         try:
-            self._update_progress("starting analysis", "started", 10)
+            await self._update_progress("starting analysis", "started", 10)
             
             # Step 1: Use original query directly (no CoT preprocessing)
-            self._update_progress("processing query", "started", 20)
+            await self._update_progress("processing query", "started", 20)
             preprocessed_query = query  # Use original query directly
             
             # Log the query
@@ -813,14 +813,14 @@ class MarketExpectationAgent:
             logging.info(f"🎯 Query sent to Stock Read Agent: {preprocessed_query}")
             
             # Step 2: Call Stock Read Agent with original query
-            self._update_progress("calling stock read agent", "started", 40)
+            await self._update_progress("calling stock read agent", "started", 40)
             stock_read_wrapper = await self.call_stock_read_agent(preprocessed_query, ticker)
             
             # Extract the actual Stock Read Agent response
             stock_read_result = stock_read_wrapper.get("stock_read_result", "No result available")
             
             # Step 3: Create final result with Stock Read Agent analysis only (no LLM analysis)
-            self._update_progress("creating final result", "started", 80)
+            await self._update_progress("creating final result", "started", 80)
             result = {
                 "original_query": query,
                 "ticker": ticker,
@@ -830,9 +830,9 @@ class MarketExpectationAgent:
             }
             
             # Store result in Frontend Redis (separate from stock trend database)
-            self._store_market_result(result, ticker)
+            await self._store_market_result(result, ticker)
             
-            self._update_progress("analysis complete", "completed", 100)
+            await self._update_progress("analysis complete", "completed", 100)
             
             logging.info(f"✅ Market expectation analysis completed for {ticker}")
             logging.info(f"   - User ID: {self.user_id}")
@@ -842,13 +842,16 @@ class MarketExpectationAgent:
             
         except Exception as e:
             logging.error(f"❌ Error in market expectation analysis: {e}")
-            self._update_progress("analysis failed", "failed", 0, str(e))
+            await self._update_progress("analysis failed", "failed", 0, str(e))
             raise e
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
         if self.stock_read_agent:
-            self.stock_read_agent.close()
+            try:
+                await self.stock_read_agent.close()
+            except Exception as e:
+                logging.warning(f"⚠️ Error closing Stock Read Agent: {e}")
         logging.info("🔚 Market Expectation Agent closed")
 
     def get_workflow_progress(self) -> dict:
@@ -972,7 +975,7 @@ class MarketExpectationAgent:
         return frontend_progress
 
 
-def main():
+async def main():
     """Main function to run Market Expectation Agent with progress tracking."""
     import argparse
     
@@ -1032,10 +1035,11 @@ def main():
         sys.exit(1)
     
     finally:
-        agent.close()
+        await agent.close()
 
 
 if __name__ == "__main__":
     # Example usage:
     # python Market_Expectation_Agent.py --query "If trump cancel crypto policy how will the market move on stock COINBASE" --ticker COIN
-    main() 
+    import asyncio
+    asyncio.run(main()) 

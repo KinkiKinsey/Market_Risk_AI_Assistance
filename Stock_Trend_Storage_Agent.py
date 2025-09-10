@@ -1122,7 +1122,7 @@ async def analyze_stock_trends(ticker: str, force_update: bool = False, use_mult
             
             print(f"🔍 Checking {DB_TYPE.upper()} for recent data...")
             stored_data = storage.get_stock_trend_data(ticker, DB_COLLECTION)
-            storage.close()
+            await storage.close()
             
             if stored_data:
                 # Check if data is recent (within 24 hours)

@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&Q.AI - Impact Chain Analysis Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Large Logo Section - Invisible Background */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 20px;
+            /* NO BACKGROUND - Invisible chunk */
+            background: transparent;
+            border: none;
+            border-radius: 0;
+        }
+
+        .logo-svg {
+            width: 500px;
+            height: 200px;
+            filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8));
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8)); }
+            50% { filter: drop-shadow(0 0 60px rgba(118, 75, 162, 1)); }
+        }
+
+        .logo-text {
+            font-size: 48px;
+            font-weight: 200;
+            color: #ffffff;
+            letter-spacing: 12px;
+            margin-top: 30px;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+        }
+
+        .logo-description {
+            font-size: 20px;
+            font-weight: 100;
+            color: #a0aec0;
+            letter-spacing: 4px;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+
+        .ticker-bar {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticker-symbol {
+            font-size: 2em;
+            font-weight: 600;
+            color: #667eea;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        /* Single Ring Design */
+        .ring-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .single-ring {
+            width: 25px;
+            height: 25px;
+            border: 2px solid;
+            border-radius: 50%;
+            position: relative;
+            animation: ring-pulse 2s ease-in-out infinite;
+        }
+
+        .ring-quantitative {
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+        }
+
+        .ring-qualitative {
+            border-color: #764ba2;
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.6);
+        }
+
+        @keyframes ring-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        .ring-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ring-glow 3s ease-in-out infinite;
+        }
+
+        .ring-glow-quantitative {
+            border: 1px solid #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ring-glow-qualitative {
+            border: 1px solid #764ba2;
+            box-shadow: 0 0 20px rgba(118, 75, 162, 0.4);
+        }
+
+        @keyframes ring-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Section Titles with Rings */
+        .section-title-with-ring {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .section-title-text {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+        }
+
+        .color-legend {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .legend-title {
+            font-size: 1.5em;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .legend-subtitle {
+            font-size: 1em;
+            color: #a0aec0;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-color.long-term-up {
+            background: linear-gradient(135deg, #3498db, #5dade2);
+        }
+
+        .legend-color.long-term-down {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .legend-color.short-term-up {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .legend-color.short-term-down {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .legend-text {
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .chain-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .chain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .chain-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .chain-title {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .direction-badge {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .direction-badge.short-term-up {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .direction-badge.short-term-down {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .direction-badge.long-term-up {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .direction-badge.long-term-down {
+            background: rgba(230, 126, 34, 0.2);
+            color: #e67e22;
+            border: 1px solid #e67e22;
+        }
+
+        .chain-content {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #cbd5e0;
+        }
+
+        .mermaid-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .summary-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #cbd5e0;
+        }
+
+        .summary-content p {
+            margin-bottom: 15px;
+        }
+
+        /* TWO COLUMN LAYOUT FOR SELL/BUY */
+        .sell-buy-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .sell-side-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .buy-side-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .side-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sell-side-title {
+            color: #e74c3c;
+        }
+
+        .buy-side-title {
+            color: #27ae60;
+        }
+
+        .side-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .side-content p {
+            margin-bottom: 12px;
+        }
+
+        /* NEW: FOUR PANEL LAYOUT FOR RISK/REWARD */
+        .risk-reward-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .risk-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .reward-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-value {
+            font-size: 3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* NEW COLOR SCHEME: Higher scores = Green, Lower scores = Red */
+        .metric-value.excellent {
+            color: #27ae60;
+            text-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+        }
+
+        .metric-value.good {
+            color: #2ecc71;
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        .metric-value.warning {
+            color: #f39c12;
+            text-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .metric-value.danger {
+            color: #e74c3c;
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* NEW: TWO COLUMN LAYOUT FOR PRICE IN/PRICE OUT */
+        .price-analysis-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .price-in-card {
+            background: rgba(39, 174, 96, 0.05);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-out-card {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .price-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .price-in-title {
+            color: #27ae60;
+        }
+
+        .price-out-title {
+            color: #e74c3c;
+        }
+
+        .price-content {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        /* NEW: Dynamic Reasoning Bar */
+        .reasoning-container {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .reasoning-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .reasoning-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .reasoning-text {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #cbd5e0;
+            text-align: justify;
+        }
+
+        .conclusion-card {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .conclusion-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .conclusion-text {
+            line-height: 1.7;
+            color: #cbd5e0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 0.9em;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sell-buy-container {
+                grid-template-columns: 1fr;
+            }
+            .risk-reward-grid {
+                grid-template-columns: 1fr;
+            }
+            .risk-panel, .reward-panel {
+                grid-template-columns: 1fr;
+            }
+            .price-analysis-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Large Logo Section - Invisible Background -->
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="cleanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#667eea;#764ba2;#667eea" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
+                            <animate attributeName="stop-color" 
+                                    values="#764ba2;#667eea;#764ba2" 
+                                    dur="4s" repeatCount="indefinite"/>
+                        </stop>
+                    </linearGradient>
+                    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge> 
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- First Ellipse (Quantitative) -->
+                <ellipse cx="150" cy="65" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+
+                <!-- Second Ellipse (Qualitative) -->
+                <ellipse cx="210" cy="85" rx="50" ry="25" 
+                      fill="none"
+                      stroke="url(#cleanGradient)" 
+                      stroke-width="5"
+                      filter="url(#subtleGlow)"
+                      opacity="0.9">
+                    <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                </ellipse>
+
+                <!-- Intersection area highlight -->
+                <ellipse cx="180" cy="75" rx="20" ry="12" 
+                      fill="url(#cleanGradient)" 
+                      opacity="0.25"
+                      filter="url(#subtleGlow)">
+                    <animate attributeName="opacity" values="0.25;0.4;0.25" dur="3s" repeatCount="indefinite"/>
+                </ellipse>
+            </svg>
+            <div class="logo-text">Q&Q.AI</div>
+            <div class="logo-description">定量与定性AI投资分析系统</div>
+        </div>
+
+        <!-- Ticker info bar -->
+        <div class="ticker-bar">
+            <div class="ticker-symbol">MSTR</div>
+            <div>Analysis Date: 2025-09-10</div>
+            <div>6 Impact Chains Analyzed</div>
+        </div>
+
+        <!-- Color Legend -->
+        
+        <div class="color-legend">
+            <h3 class="legend-title">影响链方向说明</h3>
+            <p class="legend-subtitle">不同颜色代表不同的投资方向和时间维度</p>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color long-term-up"></div>
+                    <span class="legend-text">长期上涨</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color long-term-down"></div>
+                    <span class="legend-text">长期下跌</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-up"></div>
+                    <span class="legend-text">短期上涨</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color short-term-down"></div>
+                    <span class="legend-text">短期下跌</span>
+                </div>
+            </div>
+        </div>
+    
+
+        <!-- Impact Chains Section - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-qualitative">
+                    <div class="ring-glow ring-glow-qualitative"></div>
+                </div>
+                <div class="section-title-text">定性AI</div>
+            </div>
+        
+            
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">1</div>
+                        <div class="chain-title">比特币价格下跌</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">比特币价格下跌 → 市场数据显示类似事件导致-15.3%回报率（参考2023-01-15至2023-01-18）→ MSTR股价受3.7倍贝塔系数放大影响 → 下行风险加剧-22.1% → 短期下跌</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 比特币PriceDown..."]
+    A[比特币PriceDown]
+    B[Market数据显示类似Event导致-15.3回报率参考2023-01-15至2023-01-18]
+    C[MSTR股价受3.7倍贝塔系数放大Impact]
+    D[下行Risk加剧-22.1]
+    E[Short Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">2</div>
+                        <div class="chain-title">特朗普政府政策对加密货币监管环境的影响</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">特朗普政府政策对加密货币监管环境的影响 → 市场数据显示类似监管放松事件导致+12.5%回报（参考2023-01-15至2023-01-18） → 加密货币监管环境改善（+15%市场信心） → MSTR比特币持仓价值提升（+8%资产价值） → 投资者对MSTR信心增强（+5%股价） → Long Term Up</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 特朗普政府政策对加密货币监管环境的Impact..."]
+    A[特朗普政府政策对加密货币监管环境的Impact]
+    B[Market数据显示类似监管放松Event导致+12.5回报参考2023-01-15至2023...]
+    C[加密货币监管环境改善+15Market信心]
+    D[MSTR比特币持仓价值提升+8资产价值]
+    E[Final Decision]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">3</div>
+                        <div class="chain-title">MSTR持续增发股票和债务导致42%股本稀释</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">MSTR持续增发股票和债务导致42%股本稀释 → 历史数据显示类似股本稀释事件导致-15.3%回报率（参考2023-01-15至2023-01-18） → 每股收益稀释-12% → 股东价值减少-8% → 市场信心下降-5% → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: MSTR持续增发Stock和债务导致42股本稀释..."]
+    A[MSTR持续增发Stock和债务导致42股本稀释]
+    B[历史数据显示类似股本稀释Event导致-15.3回报率参考2023-01-15至2023-01-18]
+    C[每股Revenue稀释-12]
+    D[股东价值减少-8]
+    E[Long Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">4</div>
+                        <div class="chain-title">MSTR相对于比特币净值112%溢价估值</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">MSTR相对于比特币净值112%溢价估值 → 市场数据显示类似高溢价情况导致-15.3%回报率（参考2023-01-15至2023-01-18） → 估值回归压力（-8%估值压缩） → 投资者信心下降（-5%资金流出） → 短期下行压力 → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 6: MSTR相对于比特币净值112溢价估值..."]
+    A[MSTR相对于比特币净值112溢价估值]
+    B[Market数据显示类似高溢价情况导致-15.3回报率参考2023-01-15至2023-01-18]
+    C[估值回归压力-8估值压缩]
+    D[投资者信心Down-5资金流出]
+    E[Short Term下行压力]
+    F[Short Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style F fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">5</div>
+                        <div class="chain-title">MSTR创新融资策略通过优先股和可转债购买比特币</div>
+                    </div>
+                    <span class="direction-badge short-term-up">Short Term Up</span>
+                </div>
+                <div class="chain-content">MSTR创新融资策略通过优先股和可转债购买比特币 → 类似融资策略历史数据显示+12.5%回报率（参考2023-01-15至2023-01-18）→ 比特币持仓增加+15% → 市场对数字资产敞口认可度提升+8% → 股价短期上涨+6% → Short Term Up</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: MSTR创新融资策略通过优先股和可转债购买比特币..."]
+    A[MSTR创新融资策略通过优先股和可转债购买比特币]
+    B[类似融资策略历史数据显示+12.5回报率参考2023-01-15至2023-01-18]
+    C[比特币持仓增加+15]
+    D[Market对数字资产敞口认可度提升+8]
+    E[Short Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">6</div>
+                        <div class="chain-title">核心软件业务收入下滑7.5%</div>
+                    </div>
+                    <span class="direction-badge long-term-down">Long Term Down</span>
+                </div>
+                <div class="chain-content">核心软件业务收入下滑7.5% → 市场数据显示类似软件业务下滑事件导致-15.3%回报率（参考2023-01-15至2023-01-18）→ 投资者信心下降（-8%估值）→ 长期增长前景恶化（-5%可持续性评分）→ Long Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 核心软件业务收入下滑7.5..."]
+    A[核心软件业务收入下滑7.5]
+    B[Market数据显示类似软件业务下滑Event导致-15.3回报率参考2023-01-15至2...]
+    C[投资者信心Down-8估值]
+    D[Long Term增长前景恶化-5可持续性评分]
+    E[Long Term Down]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+        </div>
+
+        <!-- Sell & Buy Analysis - TWO COLUMN LAYOUT -->
+        <div class="section">
+            <h2 class="section-title">买卖分析总结</h2>
+            <div class="sell-buy-container">
+                <div class="sell-side-card">
+                    <h3 class="side-title sell-side-title">卖出分析</h3>
+                    <div class="side-content">
+                        <p>比特币波动性带来下行风险</p>
+<p>42%股本稀释持续威胁股东价值</p>
+<p>712%市销率溢价显示估值过高</p>
+<p>核心业务收入下滑7.5%</p>
+<p>依赖比特币收益而非基本面</p>
+
+                    </div>
+                </div>
+                <div class="buy-side-card">
+                    <h3 class="side-title buy-side-title">买入分析</h3>
+                    <div class="side-content">
+                        <p>比特币价格上涨带动股价500%飙升</p>
+<p>特朗普政府支持加密货币政策</p>
+<p>创新融资策略实现比特币积累</p>
+<p>机构对比特币兴趣增长支持长期潜力</p>
+<p>杠杆策略在有利条件下放大收益</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Logic Summary -->
+        <div class="section">
+            <h2 class="section-title">商业逻辑总结</h2>
+            <div class="summary-card">
+                <div class="summary-content">
+                    <p>['MSTR采用双重商业模式：企业分析软件+比特币国库策略', '通过可转债和股权发行构建杠杆比特币代理', '利用比特币流动性溢价和市场对间接加密敞口的需求', '形成"永续稀释机器"模式依赖新投资者需求', '核心软件业务自2022年起EBITDA为负', '面临更便宜直接比特币投资工具的竞争威胁']</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusion Analysis - NEW TITLE WITH RING -->
+        <div class="section">
+            
+            <div class="section-title-with-ring">
+                <div class="single-ring ring-quantitative">
+                    <div class="ring-glow ring-glow-quantitative"></div>
+                </div>
+                <div class="section-title-text">定量AI</div>
+            </div>
+        
+
+            <!-- KEEP: Four Panel Risk/Reward Layout -->
+            <div class="risk-reward-grid">
+                <!-- Risk Panel -->
+                <div class="risk-panel">
+                    <div class="metric-card">
+                        <div class="metric-value danger">0.85/1.0</div>
+                        <div class="metric-label">短期风险评分</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value warning">0.55/1.0</div>
+                        <div class="metric-label">长期风险评分</div>
+                    </div>
+                </div>
+                
+                <!-- Reward Panel -->
+                <div class="reward-panel">
+                    <div class="metric-card">
+                        <div class="metric-value danger">0.25/1.0</div>
+                        <div class="metric-label">短期回报评分</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value good">0.65/1.0</div>
+                        <div class="metric-label">长期回报评分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Two Column Price In/Price Out Layout -->
+            <div class="price-analysis-container">
+                <div class="price-in-card">
+                    <h3 class="price-title price-in-title">当前价格已反映</h3>
+                    <div class="price-content">
+                        <p>当前价格已充分反映比特币价格下跌风险（3.7倍贝塔放大效应）、42%股本稀释压力和高估值溢价（112%）。市场已定价短期下行风险约-22.1%，但尚未完全反映监管政策变化的潜在利好。</p>
+                    </div>
+                </div>
+                <div class="price-out-card">
+                    <h3 class="price-title price-out-title">当前价格未反映</h3>
+                    <div class="price-content">
+                        <p>市场未充分定价特朗普政府可能带来的加密货币监管放松（+12.5%历史回报潜力）。一旦监管环境改善，MSTR作为比特币持仓大户可能获得+15-20%上涨空间。同时核心软件业务下滑7.5%的长期影响也未完全体现。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Dynamic Reasoning Bar -->
+            <div class="reasoning-container">
+                <h3 class="reasoning-title">AI风险评级分析说明</h3>
+                <div class="reasoning-bar">
+                    <div class="reasoning-text">短期高风险（0.85）：基于历史相似趋势（2024年10月、12月下跌趋势显示-3.6%日均回报），比特币价格下跌通过3.7倍贝塔放大，叠加42%股本稀释和112%估值溢价，形成三重压力。短期低回报（0.25）：缺乏正面催化剂，软件业务下滑且市场情绪谨慎。长期中等风险（0.55）：监管不确定性持续，但特朗普政策可能改善环境。长期中等回报（0.65）：比特币持仓的长期价值支撑和创新融资策略提供上行潜力，但核心业务下滑构成制约。</div>
+                </div>
+            </div>
+
+ 
+    
+
+            <!-- Key Catalysts -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">关键催化剂</h3>
+                <div class="conclusion-text">三大关键变量：比特币价格波动（影响3.7倍贝塔系数）、政府监管政策变化（特朗普政策带来监管放松）、股本種稀速度（42%股本種稀影响持续性）。这三者任意一项的重大变化都将彻底改变MSTR的投资逻辑和价值评估。</div>
+            </div>
+
+            <!-- Short Term Impact -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">短期影响</h3>
+                <div class="conclusion-text">基于分析，MSTR在短期面临重大下行风险。比特币价格下跌通过3.7倍贝塔系数放大影响，预计导致-22.1%下行风险。同时面临42%股本種稀和112%高估值波动压力。根据历史数据，类似情况导致-15.3%回报率。在当前价位下不安全，建议谨慎观望。</div>
+            </div>
+
+            <!-- Long Term Outlook -->
+            <div class="conclusion-card">
+                <h3 class="conclusion-title">长期展望</h3>
+                <div class="conclusion-text">长期看法混淆但偏向正面。特朗普政策可能改善加密货币监管环境，历史数据显示类似监管放松导致+12.5%回报率。MSTR的创新融资策略和比特币国库定位供给了长期价值支撑。然而核心软件业务收入下滑7.5%构成长期挑战。在当前价位下存在不确定性，需要继续关注监管环境变化。</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>由 Q&Q.AI  - 定量&定性 AI</p>
+            <p>报告生成时间: 2025-09-10 16:27:27</p>
+            <p>© 2025 Q&Q.AI - 连接数据智能</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#667eea',
+                secondaryColor: '#764ba2',
+                background: 'rgba(255, 255, 255, 0.05)',
+                mainBkg: 'rgba(255, 255, 255, 0.05)',
+                secondBkg: 'rgba(102, 126, 234, 0.1)',
+                fontFamily: 'Segoe UI',
+                fontSize: '14px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

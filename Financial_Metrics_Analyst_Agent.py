@@ -145,7 +145,7 @@ class FinancialMetricsAnalystAgent:
         
         logging.info(f"🚀 Financial Metrics Analyst Agent initialized for user {self.user_id}, task {self.task_id}")
     
-    def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
+    async def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
         """
         Update progress in Frontend Redis - separate from financial metrics database.
         
@@ -175,7 +175,7 @@ class FinancialMetricsAnalystAgent:
             progress_key = f"financial_metrics_analyst_frontend_progress:{self.user_id}"
             
             # Get existing progress data
-            existing_data = self.frontend_redis.hgetall(progress_key)
+            existing_data = await self.frontend_redis.hgetall(progress_key)
             
             # Create updated data structure
             updated_data = {}
@@ -197,10 +197,10 @@ class FinancialMetricsAnalystAgent:
             
             # Store all data back to Frontend Redis
             if updated_data:
-                self.frontend_redis.hset(progress_key, mapping=updated_data)
+                await self.frontend_redis.hset(progress_key, mapping=updated_data)
             
             # Set expiry to clean up old progress (24 hours)
-            self.frontend_redis.expire(progress_key, 86400)
+            await self.frontend_redis.expire(progress_key, 86400)
             
             logging.info(f"📊 Frontend Progress Update: {step} - {status} ({progress}%) - Agent: Financial Metrics Analyst")
             
@@ -241,7 +241,7 @@ class FinancialMetricsAnalystAgent:
         except Exception as e:
             logging.error(f"❌ Failed to clear frontend progress: {e}")
     
-    def _store_financial_result(self, result: dict, ticker: str) -> bool:
+    async def _store_financial_result(self, result: dict, ticker: str) -> bool:
         """
         Store financial metrics analysis result in Frontend Redis.
         
@@ -272,10 +272,10 @@ class FinancialMetricsAnalystAgent:
             financial_result_key = f"financial_metrics_analyst_result:{self.user_id}"
             
             # Store in Frontend Redis (overwrites previous result for same user)
-            self.frontend_redis.set(financial_result_key, json.dumps(financial_result))
+            await self.frontend_redis.set(financial_result_key, json.dumps(financial_result))
             
             # Set expiry (30 days)
-            self.frontend_redis.expire(financial_result_key, 2592000)  # 30 days in seconds
+            await self.frontend_redis.expire(financial_result_key, 2592000)  # 30 days in seconds
             
             logging.info(f"✅ Financial result stored in Frontend Redis: {financial_result_key}")
             return True
@@ -377,10 +377,10 @@ class FinancialMetricsAnalystAgent:
             Dict: Complete analysis result with Financial Metrics Read Agent analysis
         """
         try:
-            self._update_progress("starting analysis", "started", 10)
+            await self._update_progress("starting analysis", "started", 10)
             
             # Step 1: Process the query (direct pass-through)
-            self._update_progress("processing query", "started", 20)
+            await self._update_progress("processing query", "started", 20)
             processed_query = query  # Direct pass-through to Read Agent
             
             # Log the query
@@ -388,16 +388,16 @@ class FinancialMetricsAnalystAgent:
             logging.info(f"🎯 Query sent to Financial Metrics Read Agent: {processed_query}")
             
             # Step 2: Call Financial Metrics Read Agent with query
-            self._update_progress("calling financial read agent", "started", 40)
+            await self._update_progress("calling financial read agent", "started", 40)
             financial_read_result = await self.call_financial_read_agent(processed_query, ticker)
             
             # Check for errors
             if 'error' in financial_read_result:
-                self._update_progress("analysis failed", "failed", 0, financial_read_result['error'])
+                await self._update_progress("analysis failed", "failed", 0, financial_read_result['error'])
                 raise Exception(f"Financial Metrics Read Agent failed: {financial_read_result['error']}")
             
             # Step 3: Create final result with Financial Metrics Read Agent analysis
-            self._update_progress("creating final result", "started", 80)
+            await self._update_progress("creating final result", "started", 80)
             
             # Extract just the llm_response to match other agents' output format
             llm_response = financial_read_result.get('llm_response', 'No LLM response available')
@@ -411,9 +411,9 @@ class FinancialMetricsAnalystAgent:
             }
             
             # Store full result in Frontend Redis (separate from financial metrics database)
-            self._store_financial_result(financial_read_result, ticker)
+            await self._store_financial_result(financial_read_result, ticker)
             
-            self._update_progress("analysis complete", "completed", 100)
+            await self._update_progress("analysis complete", "completed", 100)
             
             logging.info(f"✅ Financial metrics analysis completed for {ticker}")
             logging.info(f"   - User ID: {self.user_id}")
@@ -424,7 +424,7 @@ class FinancialMetricsAnalystAgent:
             
         except Exception as e:
             logging.error(f"❌ Error in financial metrics analysis: {e}")
-            self._update_progress("analysis failed", "failed", 0, str(e))
+            await self._update_progress("analysis failed", "failed", 0, str(e))
             raise e
     
     def close(self):

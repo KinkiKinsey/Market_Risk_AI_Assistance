@@ -130,17 +130,17 @@ class MacroAnalystAgent:
             print(f"🔍 Processing macro query: {query}")
             
             # Update progress: Starting analysis
-            self._update_progress("starting analysis", "started", 10, f"Initializing macro analysis for query: {query[:50]}...")
+            await self._update_progress("starting analysis", "started", 10, f"Initializing macro analysis for query: {query[:50]}...")
             
             # Update progress: Calling Macro Read Agent
-            self._update_progress("calling macro read agent", "started", 30, "Connecting to Macro Read Agent")
+            await self._update_progress("calling macro read agent", "started", 30, "Connecting to Macro Read Agent")
             print("📡 Calling Macro Read Agent...")
             
             # Call Macro Read Agent (now async)
             analysis_response = await self.macro_read_agent.process_user_query(query)
             
             if not analysis_response:
-                self._update_progress("calling macro read agent", "failed", 30, "No response from Macro Read Agent")
+                await self._update_progress("calling macro read agent", "failed", 30, "No response from Macro Read Agent")
                 return {
                     'llm_response': 'No response from Macro Read Agent',
                     'query': query,
@@ -148,7 +148,7 @@ class MacroAnalystAgent:
                 }
             
             # Update progress: Processing response
-            self._update_progress("processing response", "started", 60, "Processing LLM analysis response")
+            await self._update_progress("processing response", "started", 60, "Processing LLM analysis response")
             
             # Create simplified result structure (matching other agents)
             result = {
@@ -161,7 +161,7 @@ class MacroAnalystAgent:
             print(f"📊 Response length: {len(analysis_response)} characters")
             
             # Store result (simplified)
-            self._store_macro_result(result)
+            await self._store_macro_result(result)
             
             return result
             
@@ -175,7 +175,7 @@ class MacroAnalystAgent:
                 'timestamp': datetime.now().isoformat()
             }
     
-    def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
+    async def _update_progress(self, step: str, status: str, progress: int = None, details: str = ""):
         """
         Update progress in Frontend Redis - same structure as other agents
         
@@ -205,13 +205,13 @@ class MacroAnalystAgent:
             
             try:
                 # Check if key exists and is a hash, if not, delete it
-                key_type = self.frontend_redis.type(progress_key)
+                key_type = await self.frontend_redis.type(progress_key)
                 if key_type != 'hash' and key_type != 'none':
                     print(f"⚠️ Key {progress_key} exists as {key_type}, deleting to recreate as hash")
-                    self.frontend_redis.delete(progress_key)
+                    await self.frontend_redis.delete(progress_key)
                 
                 # Get existing progress data
-                existing_data = self.frontend_redis.hgetall(progress_key)
+                existing_data = await self.frontend_redis.hgetall(progress_key)
                 
                 # Create updated data structure
                 updated_data = {}
@@ -233,14 +233,14 @@ class MacroAnalystAgent:
                 
                 # Store all data back to Frontend Redis
                 if updated_data:
-                    self.frontend_redis.hset(progress_key, mapping=updated_data)
+                    await self.frontend_redis.hset(progress_key, mapping=updated_data)
                     
             except Exception as e:
                 print(f"⚠️ Progress tracking failed, continuing without it: {e}")
                 # Continue execution even if progress tracking fails
             
             # Set expiry to clean up old progress (24 hours)
-            self.frontend_redis.expire(progress_key, 86400)
+            await self.frontend_redis.expire(progress_key, 86400)
             
             print(f"📊 Progress Update: {step} - {status} ({progress}%)")
             
@@ -248,7 +248,7 @@ class MacroAnalystAgent:
             print(f"❌ Failed to update progress: {e}")
             logging.error(f"Progress update error: {e}")
 
-    def _store_macro_result(self, result: Dict[str, Any]):
+    async def _store_macro_result(self, result: Dict[str, Any]):
         """
         Store macro result in Frontend Redis (same as other agents)
         
@@ -264,11 +264,11 @@ class MacroAnalystAgent:
             result_key = self.macro_result_key
             result_data = json.dumps(result, default=str)
             
-            self.frontend_redis.set(result_key, result_data)
-            self.frontend_redis.expire(result_key, 30 * 24 * 60 * 60)  # 30 days
+            await self.frontend_redis.set(result_key, result_data)
+            await self.frontend_redis.expire(result_key, 30 * 24 * 60 * 60)  # 30 days
             
             # Update progress: Analysis complete
-            self._update_progress("analysis complete", "completed", 100, "Macro analysis completed successfully")
+            await self._update_progress("analysis complete", "completed", 100, "Macro analysis completed successfully")
             
             print(f"✅ Macro result stored in Frontend Redis: {result_key}")
             

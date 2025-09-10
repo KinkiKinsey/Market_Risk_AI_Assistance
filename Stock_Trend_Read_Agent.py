@@ -74,6 +74,12 @@ class StockTrendAnalystAgent:
         if shared_clients:
             # Use shared Redis connection
             self.redis_client = shared_clients.get_stock_trend_redis()
+            self.collection_name = collection_name  # CRITICAL: Set collection_name for shared clients
+            self.redis_host = redis_host  # CRITICAL: Set redis_host for shared clients
+            self.redis_port = redis_port
+            self.redis_username = redis_username
+            self.redis_password = redis_password
+            self.openai_api_key = openai_api_key
             self.storage = DatabaseStorage(
                 db_type="redis",
                 shared_clients=shared_clients
@@ -224,7 +230,7 @@ class StockTrendAnalystAgent:
             }
         ]
     
-    def get_stock_data(self, ticker: str) -> Optional[Dict]:
+    async def get_stock_data(self, ticker: str) -> Optional[Dict]:
         """
         Retrieve stock trend data for a given ticker using direct Redis access.
         
@@ -239,7 +245,7 @@ class StockTrendAnalystAgent:
             
             # Direct Redis access using the same logic as DB Agent
             redis_key = f"{self.collection_name}:{ticker.upper()}_trends"
-            data_str = self.redis_client.get(redis_key)
+            data_str = await self.redis_client.get(redis_key)
             
             if data_str:
                 data = json.loads(data_str)
@@ -690,7 +696,7 @@ AVAILABLE DATA:
             logging.error(f"❌ Error in LLM analysis: {e}")
             return f"❌ Error in LLM analysis: {e}"
     
-    def check_database_status(self, ticker: str, force_update: bool = False) -> Dict:
+    async def check_database_status(self, ticker: str, force_update: bool = False) -> Dict:
         """
         Check database status for a ticker - data availability and freshness.
         
@@ -705,7 +711,7 @@ AVAILABLE DATA:
             logging.info(f"🔍 Checking database status for ticker: {ticker}")
             
             # Get stock data from database
-            stock_data = self.get_stock_data(ticker)
+            stock_data = await self.get_stock_data(ticker)
             
             if not stock_data:
                 return {
@@ -762,7 +768,7 @@ AVAILABLE DATA:
                 "ticker": ticker
             }
     
-    def run_stock_analysis_if_needed(self, ticker: str, force_update: bool = False) -> Dict:
+    async def run_stock_analysis_if_needed(self, ticker: str, force_update: bool = False) -> Dict:
         """
         Check if stock data is fresh and available.
         Only returns success if data is fresh (< 24 hours old).
@@ -778,7 +784,7 @@ AVAILABLE DATA:
             logging.info(f"🔄 Checking data freshness for ticker: {ticker}")
             
             # Check database status first
-            db_status = self.check_database_status(ticker, force_update)
+            db_status = await self.check_database_status(ticker, force_update)
             
             if db_status["status"] == "fresh":
                 logging.info(f"✅ Data is fresh for {ticker}")
@@ -798,7 +804,7 @@ AVAILABLE DATA:
                 if update_result == "data_fresh":
                     logging.info(f"✅ Data became fresh during check for {ticker}")
                     # Get the fresh data
-                    fresh_data = self.get_stock_data(ticker)
+                    fresh_data = await self.get_stock_data(ticker)
                     return {
                         "status": "success",
                         "message": "Data is fresh",
@@ -809,7 +815,7 @@ AVAILABLE DATA:
                 elif update_result == "updated":
                     logging.info(f"✅ Successfully updated data for {ticker}")
                     # Get the updated data
-                    updated_data = self.get_stock_data(ticker)
+                    updated_data = await self.get_stock_data(ticker)
                     return {
                         "status": "success",
                         "message": "Data updated successfully",
@@ -820,7 +826,7 @@ AVAILABLE DATA:
                 elif update_result == "waited_for_update":
                     logging.info(f"✅ Waited for another user to update {ticker}")
                     # Get the data that was updated by another user
-                    updated_data = self.get_stock_data(ticker)
+                    updated_data = await self.get_stock_data(ticker)
                     return {
                         "status": "success",
                         "message": "Data updated by another user",
@@ -831,7 +837,7 @@ AVAILABLE DATA:
                 elif update_result == "timeout":
                     logging.warning(f"⚠️ Timeout waiting for {ticker} update")
                     # Try to get whatever data is available
-                    available_data = self.get_stock_data(ticker)
+                    available_data = await self.get_stock_data(ticker)
                     return {
                         "status": "partial_success",
                         "message": "Timeout waiting for update, using available data",
@@ -884,7 +890,7 @@ AVAILABLE DATA:
             logging.info(f"🔍 Processing query: '{query}' for ticker: {ticker}")
             
             # STEP 2: Check database status with extracted ticker
-            db_status = self.check_database_status(ticker, force_update)
+            db_status = await self.check_database_status(ticker, force_update)
             
             # STEP 3: Use ticker as constant variable throughout all if/else logic
             if db_status["status"] == "fresh":
@@ -925,26 +931,13 @@ AVAILABLE DATA:
         try:
             logging.info(f"📥 Directly calling DB Agent for {ticker}")
             
-            # Import and call DB Agent directly
-            from Stock_Trend_DB_Agent import DatabaseStorage
-            
-            # Initialize DB Agent with same Redis config
-            db_agent = DatabaseStorage(
-                db_type="redis",
-                host=self.redis_host,
-                port=self.redis_port,
-                username=self.redis_username,
-                password=self.redis_password
-            )
-            
+            # Use existing storage instance (already configured with shared clients or individual connection)
             # Call DB Agent with force_update=True for {ticker}
-            success = await db_agent.download_and_store_ticker(
+            success = await self.storage.download_and_store_ticker(
                 ticker=ticker,
                 collection_name=self.collection_name,
                 force_update=True  # Force fresh analysis for {ticker}
             )
-            
-            db_agent.close()
             
             if success:
                 logging.info(f"✅ DB Agent successfully downloaded {ticker} data")
@@ -974,7 +967,7 @@ AVAILABLE DATA:
         """
         try:
             # Get fresh data from database for {ticker}
-            stock_data = self.get_stock_data(ticker)
+            stock_data = await self.get_stock_data(ticker)
             
             if stock_data:
                 logging.info(f"✅ Processing query with fresh data for {ticker}")
@@ -1195,13 +1188,13 @@ AVAILABLE DATA:
     
 
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
-        self.storage.close()
+        await self.storage.close()
         logging.info("🔚 Stock Trend Analyst Agent closed")
 
 
-def main():
+async def main():
     """Main function to handle command line arguments and execute queries."""
     parser = argparse.ArgumentParser(description='Stock Trend Analyst Agent - Natural Language Query Interface')
     
@@ -1298,7 +1291,7 @@ def main():
         sys.exit(1)
     finally:
         if 'agent' in locals():
-            agent.close()
+            await agent.close()
 
 
 if __name__ == "__main__":
@@ -1308,4 +1301,5 @@ if __name__ == "__main__":
     # python Stock_Trend_Analyst_Agent.py --list-tickers
     # python Stock_Trend_Analyst_Agent.py --query "Analyze AAPL trends" --ticker AAPL
     
-    main() 
+    import asyncio
+    asyncio.run(main()) 
