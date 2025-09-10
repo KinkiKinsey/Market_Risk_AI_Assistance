@@ -1,0 +1,55 @@
+streamlit
+redis
+youtube_transcript_api
+langchain
+langchain-openai
+langchain-community
+langchain-core
+langchain-deepseek
+langchain-tavily
+langgraph
+openai
+tavily-python
+requests
+beautifulsoup4
+pydantic
+python-dotenv
+pymongo
+python-dateutil
+certifi
+
+# ============================================================================
+# SHARED CLIENTS OPTIMIZATION DEPENDENCIES
+# ============================================================================
+
+# Async Redis client for connection pooling
+aioredis>=2.0.0
+
+# Async HTTP client for connection pooling
+aiohttp>=3.8.0
+
+# Async timeout utilities
+async-timeout>=4.0.0
+
+# Type hints for async operations
+typing-extensions>=4.0.0
+
+# ============================================================================
+# PERFORMANCE MONITORING
+# ============================================================================
+
+# For performance metrics and monitoring
+psutil>=5.8.0
+
+# For advanced async operations
+asyncio-mqtt>=0.11.0
+
+# ============================================================================
+# OPTIONAL: ENHANCED LOGGING
+# ============================================================================
+
+# For structured logging (optional)
+structlog>=21.1.0
+
+# For better error tracking (optional)
+sentry-sdk>=1.0.0

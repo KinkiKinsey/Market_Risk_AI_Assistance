@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid.js Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .mermaid {
+            text-align: center;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <h2>🔗 Impact Chain Visualization</h2>
+        <div class="controls">
+            <button class="btn" onclick="downloadSVG()">📥 Download SVG</button>
+            <button class="btn" onclick="downloadPNG()">📥 Download PNG</button>
+            <button class="btn" onclick="toggleTheme()">🌙 Toggle Theme</button>
+        </div>
+        <div class="mermaid" id="mermaid-chart">
+            <!-- Mermaid.js chart will be rendered here -->
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid.js
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Function to render chart
+        function renderChart(mermaidCode) {
+            document.getElementById('mermaid-chart').innerHTML = mermaidCode;
+            mermaid.init();
+        }
+
+        // Download functions
+        function downloadSVG() {
+            const svg = document.querySelector('#mermaid-chart svg');
+            if (svg) {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const blob = new Blob([svgData], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'impact-chain.svg';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function downloadPNG() {
+            const svg = document.querySelector('#mermaid-chart svg');
+            if (svg) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(svgBlob);
+                
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    const pngUrl = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = 'impact-chain.png';
+                    a.click();
+                };
+                img.src = url;
+            }
+        }
+
+        let isDarkTheme = false;
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: isDarkTheme ? 'dark' : 'default',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+            mermaid.init();
+        }
+
+        // Example chart (will be replaced by actual data)
+        const exampleChart = `
+        graph LR
+            A[Event 1]
+            B[Event 2]
+            C[Event 3]
+            D[Final Decision]
+            
+            A --> B
+            B --> C
+            C --> D
+            
+            style A fill:#e1f5fe
+            style D fill:#ffebee
+            style B fill:#f3e5f5
+            style C fill:#f3e5f5
+        `;
+
+        // Render example chart on load
+        renderChart(exampleChart);
+    </script>
+</body>
+</html>
