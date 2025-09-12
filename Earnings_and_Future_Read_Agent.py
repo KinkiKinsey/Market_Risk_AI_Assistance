@@ -714,9 +714,9 @@ Analyze the earnings and future development data to provide comprehensive insigh
         
         return response
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
-        self.storage.close()
+        await self.storage.close()
         logging.info("🔚 Earnings and Future Read Agent closed")
 
 

@@ -1,5 +1,6 @@
 import json
 import re
+import asyncio
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from LLM_Call_Agent import LLMCallAgent
@@ -322,7 +323,7 @@ class ChainOfThoughtAgent:
         # Ultimate fallback
         return 'Short Term Up'
     
-    def generate_impact_chain(
+    async def generate_impact_chain(
         self,
         ticker: str,
         user_question: str,
@@ -448,7 +449,7 @@ class ChainOfThoughtAgent:
         
         try:
             # Try structured output first
-            result = self.structured_llm.invoke(prompt)
+            result = await asyncio.to_thread(self.structured_llm.invoke, prompt)
             
             # Check if result is AIMessage (structured output failed)
             if hasattr(result, 'content'):
@@ -474,7 +475,7 @@ class ChainOfThoughtAgent:
         except Exception as e:
             # Fallback to regular LLM call
             try:
-                response = self.llm_agent.call_deepseek(prompt)
+                response = await asyncio.to_thread(self.llm_agent.call_deepseek, prompt)
                 parsed = parse_llm_response(response)
                 
                 if parsed:
@@ -753,7 +754,7 @@ def concurrent_call_generate_impact_chain_with_mermaid(
             "error": str(e)
         }
 
-def concurrent_call_generate_impact_chain_auto(
+async def concurrent_call_generate_impact_chain_auto(
     ticker: str,
     verification_links: List[str],
     verification_reasoning: str,
@@ -777,7 +778,7 @@ def concurrent_call_generate_impact_chain_auto(
         agent = ChainOfThoughtAgent()
         
         # Use the existing generate_impact_chain method
-        return agent.generate_impact_chain(
+        return await agent.generate_impact_chain(
             ticker=ticker,
             user_question=user_question,
             verification_links=verification_links,
@@ -789,7 +790,7 @@ def concurrent_call_generate_impact_chain_auto(
     except Exception as e:
         raise Exception(f"Concurrent Chain of Thought processing failed: {e}")
 
-def concurrent_call_generate_impact_chain_with_mermaid_auto(
+async def concurrent_call_generate_impact_chain_with_mermaid_auto(
     ticker: str,
     verification_links: List[str],
     verification_reasoning: str,
@@ -804,7 +805,7 @@ def concurrent_call_generate_impact_chain_with_mermaid_auto(
     """
     try:
         # Generate the chain
-        chain_result = concurrent_call_generate_impact_chain_auto(
+        chain_result = await concurrent_call_generate_impact_chain_auto(
             ticker=ticker,
             verification_links=verification_links,
             verification_reasoning=verification_reasoning,

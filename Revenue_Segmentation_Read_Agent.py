@@ -654,10 +654,10 @@ Return ONLY the JSON, nothing else:"""
             logging.error(f"❌ Error providing dynamic response: {e}")
             return f"❌ Error analyzing revenue data: {str(e)}"
     
-    def close(self):
+    async def close(self):
         """Close database connections."""
         if hasattr(self, 'storage'):
-            self.storage.close()
+            await self.storage.close()
         if hasattr(self, 'redis_client'):
             try:
                 # For shared Redis connections, we don't need to close them manually

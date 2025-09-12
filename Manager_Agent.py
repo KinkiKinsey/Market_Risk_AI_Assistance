@@ -271,20 +271,26 @@ class ManagerAgent:
         """
         Concurrently call agents based on decision flags and collect results.
         """
-        print("🚀 Starting Dynamic Agent Execution (Shared Clients Optimized)")
+        print("🚀 Starting TRUE PARALLEL Agent Execution (Optimized Concurrency)")
         print("=" * 60)
         
-        # Show semaphore status before execution
+        # OPTIMIZATION: Add performance monitoring
+        import time
+        start_time = time.time()
+        print(f"⏱️ Performance: Starting parallel execution at {time.strftime('%H:%M:%S')}")
+        
+        # OPTIMIZATION: Pre-warm shared clients for better performance
         if shared_clients is not None:
-            llm_agent = shared_clients.get_llm_agent()
-            redis_status = shared_clients.get_frontend_redis() is not None
-            print(f"🤖 Using shared clients: {'✅' if llm_agent or redis_status else '❌'}")
-            status = shared_clients.get_status()
-            print(f"🔒 OpenAI Semaphore: {status['openai_semaphore_value']}")
-            print(f"🔒 DeepSeek Semaphore: {status['deepseek_semaphore_value']}")
-            print(f"📈 Total Requests: {status['total_requests']}")
-        else:
-            print("⚠️ No shared clients provided - using individual connections")
+            print("🔥 Pre-warming shared clients for optimal performance...")
+            # Test connections to ensure they're ready
+            try:
+                if shared_clients.get_frontend_redis():
+                    await shared_clients.get_frontend_redis().ping()
+                if shared_clients.get_stock_trend_redis():
+                    await shared_clients.get_stock_trend_redis().ping()
+                print("✅ Shared clients pre-warmed successfully")
+            except Exception as e:
+                print(f"⚠️ Pre-warming failed: {e}")
 
         tasks, keys = [], []
 
@@ -304,7 +310,7 @@ class ManagerAgent:
                 # Track timing
                 from shared_clients import llm_tracker
                 llm_tracker.stamp("Market Agent Start", "Market")
-                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=500)
+                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Market Agent End", "Market")
                 return result.get('stock_read_result', 'No result')
             except asyncio.TimeoutError:
@@ -332,7 +338,7 @@ class ManagerAgent:
                 # Track timing
                 from shared_clients import llm_tracker
                 llm_tracker.stamp("Revenue Agent Start", "Revenue")
-                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=500)
+                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Revenue Agent End", "Revenue")
                 return result.get('revenue_analysis', 'No result')
             except asyncio.TimeoutError:
@@ -363,7 +369,7 @@ class ManagerAgent:
                 # Track timing
                 from shared_clients import llm_tracker
                 llm_tracker.stamp("Macro Agent Start", "Macro")
-                result = await asyncio.wait_for(a.process_macro_query(q), timeout=500)
+                result = await asyncio.wait_for(a.process_macro_query(q), timeout=300)
                 llm_tracker.stamp("Macro Agent End", "Macro")
                 return result.get('llm_response', 'No result')
             except asyncio.TimeoutError:
@@ -399,7 +405,7 @@ class ManagerAgent:
                 # Track timing
                 from shared_clients import llm_tracker
                 llm_tracker.stamp("Financial Agent Start", "Financial")
-                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=500)
+                result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Financial Agent End", "Financial")
                 return result.get('llm_response', 'No result')
             except asyncio.TimeoutError:
@@ -481,6 +487,12 @@ class ManagerAgent:
         else:
             print("ℹ️ No agents scheduled.")
 
+        # OPTIMIZATION: Performance monitoring
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"\n⏱️ Performance: Total execution time: {execution_time:.2f} seconds")
+        print(f"🚀 Performance: Average per agent: {execution_time/len(tasks):.2f}s" if tasks else "🚀 Performance: No agents executed")
+        
         print("\n" + "=" * 60)
         print("📊 Final Results Summary:")
         print("=" * 60)
@@ -555,7 +567,18 @@ class ManagerAgent:
         from shared_clients import show_performance_stats
         show_performance_stats()
         
-        return final_results, agents_result
+        return final_results
+
+    async def close(self):
+        """Close the Manager Agent and clean up resources"""
+        try:
+            # Close shared clients if they exist
+            from shared_clients import shared_clients
+            if hasattr(shared_clients, 'close'):
+                await shared_clients.close()
+            print("🔚 Manager Agent closed successfully")
+        except Exception as e:
+            print(f"⚠️ Error closing Manager Agent: {e}")
 
 # Performance monitoring functions
 def show_performance_stats():
@@ -580,10 +603,10 @@ async def test_manager_agent():
         ticker = "TEST"
         
         # Run complete analysis
-        final_results, agents_result = await manager.run_complete_analysis(user_question, ticker)
+        final_results = await manager.run_complete_analysis(user_question, ticker)
         
         print("\n✅ Manager Agent test completed successfully!")
-        return final_results, agents_result
+        return final_results
         
     except Exception as e:
         print(f"❌ Error testing Manager Agent: {e}")

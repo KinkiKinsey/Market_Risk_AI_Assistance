@@ -273,6 +273,12 @@
             margin-bottom: 20px;
         }
 
+        .chain-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .chain-number {
             background: linear-gradient(135deg, #667eea, #764ba2);
             width: 40px;
@@ -283,7 +289,6 @@
             justify-content: center;
             font-weight: 600;
             font-size: 1.2em;
-            margin-right: 15px;
             flex-shrink: 0;
         }
 
@@ -661,8 +666,8 @@
 
         <!-- Ticker info bar -->
         <div class="ticker-bar">
-            <div class="ticker-symbol">MSTR</div>
-            <div>Analysis Date: 2025-09-10</div>
+            <div class="ticker-symbol">OPEN</div>
+            <div>Analysis Date: 2025-09-11</div>
             <div>6 Impact Chains Analyzed</div>
         </div>
 
@@ -707,119 +712,20 @@
                 <div class="chain-header">
                     <div class="chain-title-wrapper">
                         <div class="chain-number">1</div>
-                        <div class="chain-title">比特币价格下跌</div>
+                        <div class="chain-title">美联储降息预期</div>
                     </div>
-                    <span class="direction-badge short-term-down">Short Term Down</span>
+                    <span class="direction-badge short-term-up">Short Term Up</span>
                 </div>
-                <div class="chain-content">比特币价格下跌 → 市场数据显示类似事件导致-15.3%回报率（参考2023-01-15至2023-01-18）→ MSTR股价受3.7倍贝塔系数放大影响 → 下行风险加剧-22.1% → 短期下跌</div>
+                <div class="chain-content">美联储降息预期 → 参考市场数据：类似货币政策宽松环境导致+2.68%回报（2024-10-23至2024-10-28） → 融资成本降低（抵押贷款利率下降-5.11%） → 交易量增加（零售销售增长+0.71%） → 收入增长潜力提升 → Short Term Up</div>
                 <div class="mermaid-wrapper">
                     <div class="mermaid">graph LR
-    title["Chain 5: 比特币PriceDown..."]
-    A[比特币PriceDown]
-    B[Market数据显示类似Event导致-15.3回报率参考2023-01-15至2023-01-18]
-    C[MSTR股价受3.7倍贝塔系数放大Impact]
-    D[下行Risk加剧-22.1]
-    E[Short Term Down]
-    title --> A
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-
-    style title fill:#fff2cc
-    style A fill:#e1f5fe
-    style E fill:#ffebee
-    style B fill:#f3e5f5
-    style C fill:#f3e5f5
-    style D fill:#f3e5f5
-</div>
-                </div>
-            </div>
-        
-            <div class="chain-card">
-                <div class="chain-header">
-                    <div class="chain-title-wrapper">
-                        <div class="chain-number">2</div>
-                        <div class="chain-title">特朗普政府政策对加密货币监管环境的影响</div>
-                    </div>
-                    <span class="direction-badge long-term-up">Long Term Up</span>
-                </div>
-                <div class="chain-content">特朗普政府政策对加密货币监管环境的影响 → 市场数据显示类似监管放松事件导致+12.5%回报（参考2023-01-15至2023-01-18） → 加密货币监管环境改善（+15%市场信心） → MSTR比特币持仓价值提升（+8%资产价值） → 投资者对MSTR信心增强（+5%股价） → Long Term Up</div>
-                <div class="mermaid-wrapper">
-                    <div class="mermaid">graph LR
-    title["Chain 5: 特朗普政府政策对加密货币监管环境的Impact..."]
-    A[特朗普政府政策对加密货币监管环境的Impact]
-    B[Market数据显示类似监管放松Event导致+12.5回报参考2023-01-15至2023...]
-    C[加密货币监管环境改善+15Market信心]
-    D[MSTR比特币持仓价值提升+8资产价值]
-    E[Final Decision]
-    title --> A
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-
-    style title fill:#fff2cc
-    style A fill:#e1f5fe
-    style E fill:#ffebee
-    style B fill:#f3e5f5
-    style C fill:#f3e5f5
-    style D fill:#f3e5f5
-</div>
-                </div>
-            </div>
-        
-            <div class="chain-card">
-                <div class="chain-header">
-                    <div class="chain-title-wrapper">
-                        <div class="chain-number">3</div>
-                        <div class="chain-title">MSTR持续增发股票和债务导致42%股本稀释</div>
-                    </div>
-                    <span class="direction-badge short-term-down">Short Term Down</span>
-                </div>
-                <div class="chain-content">MSTR持续增发股票和债务导致42%股本稀释 → 历史数据显示类似股本稀释事件导致-15.3%回报率（参考2023-01-15至2023-01-18） → 每股收益稀释-12% → 股东价值减少-8% → 市场信心下降-5% → Short Term Down</div>
-                <div class="mermaid-wrapper">
-                    <div class="mermaid">graph LR
-    title["Chain 5: MSTR持续增发Stock和债务导致42股本稀释..."]
-    A[MSTR持续增发Stock和债务导致42股本稀释]
-    B[历史数据显示类似股本稀释Event导致-15.3回报率参考2023-01-15至2023-01-18]
-    C[每股Revenue稀释-12]
-    D[股东价值减少-8]
-    E[Long Term Down]
-    title --> A
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-
-    style title fill:#fff2cc
-    style A fill:#e1f5fe
-    style E fill:#ffebee
-    style B fill:#f3e5f5
-    style C fill:#f3e5f5
-    style D fill:#f3e5f5
-</div>
-                </div>
-            </div>
-        
-            <div class="chain-card">
-                <div class="chain-header">
-                    <div class="chain-title-wrapper">
-                        <div class="chain-number">4</div>
-                        <div class="chain-title">MSTR相对于比特币净值112%溢价估值</div>
-                    </div>
-                    <span class="direction-badge short-term-down">Short Term Down</span>
-                </div>
-                <div class="chain-content">MSTR相对于比特币净值112%溢价估值 → 市场数据显示类似高溢价情况导致-15.3%回报率（参考2023-01-15至2023-01-18） → 估值回归压力（-8%估值压缩） → 投资者信心下降（-5%资金流出） → 短期下行压力 → Short Term Down</div>
-                <div class="mermaid-wrapper">
-                    <div class="mermaid">graph LR
-    title["Chain 6: MSTR相对于比特币净值112溢价估值..."]
-    A[MSTR相对于比特币净值112溢价估值]
-    B[Market数据显示类似高溢价情况导致-15.3回报率参考2023-01-15至2023-01-18]
-    C[估值回归压力-8估值压缩]
-    D[投资者信心Down-5资金流出]
-    E[Short Term下行压力]
-    F[Short Term Down]
+    title["Chain 6: 美联储降息预期..."]
+    A[美联储降息预期]
+    B[参考Market数据类似货币政策宽松环境导致+2.68回报2024-10-23至2024-10-28]
+    C[融资成本降低抵押贷款利率Down-5.11]
+    D[交易量增加零售销售增长+0.71]
+    E[收入增长潜力提升]
+    F[Short Term Up]
     title --> A
     A --> B
     B --> C
@@ -841,20 +747,125 @@
             <div class="chain-card">
                 <div class="chain-header">
                     <div class="chain-title-wrapper">
-                        <div class="chain-number">5</div>
-                        <div class="chain-title">MSTR创新融资策略通过优先股和可转债购买比特币</div>
+                        <div class="chain-number">2</div>
+                        <div class="chain-title">毛利率从负值改善至5-6%</div>
                     </div>
-                    <span class="direction-badge short-term-up">Short Term Up</span>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
                 </div>
-                <div class="chain-content">MSTR创新融资策略通过优先股和可转债购买比特币 → 类似融资策略历史数据显示+12.5%回报率（参考2023-01-15至2023-01-18）→ 比特币持仓增加+15% → 市场对数字资产敞口认可度提升+8% → 股价短期上涨+6% → Short Term Up</div>
+                <div class="chain-content">毛利率从负值改善至5-6% → 市场数据显示类似事件导致+245%回报（从2025-07-01到2025-07-31） → 运营效率提升（EBITDA转正） → 现金流改善（自由现金流收益率2.1%） → 业务模式可持续性增强 → Long Term Up</div>
                 <div class="mermaid-wrapper">
                     <div class="mermaid">graph LR
-    title["Chain 5: MSTR创新融资策略通过优先股和可转债购买比特币..."]
-    A[MSTR创新融资策略通过优先股和可转债购买比特币]
-    B[类似融资策略历史数据显示+12.5回报率参考2023-01-15至2023-01-18]
-    C[比特币持仓增加+15]
-    D[Market对数字资产敞口认可度提升+8]
-    E[Short Term Up]
+    title["Chain 6: 毛利率从负值改善至5-6..."]
+    A[毛利率从负值改善至5-6]
+    B[Market数据显示类似Event导致+245回报从2025-07-01到2025-07-31]
+    C[运营效率提升EBITDA转正]
+    D[现金流改善自由现金流Revenue率2.1]
+    E[业务模式可持续性增强]
+    F[Long Term Up]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style F fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">3</div>
+                        <div class="chain-title">平台化转型</div>
+                    </div>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
+                </div>
+                <div class="chain-content">平台化转型 → 市场数据显示类似转型事件导致+6.643%回报（参考2025-08-05至2025-08-22） → 资本密集度降低（资本支出/经营现金流降至0.2%） → 轻资产收入增长（自由现金流收益率提升至2.11%） → 运营灵活性增强（流动比率4.35，营运资本21.5亿美元） → 长期结构性改善</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 6: 平台化转型..."]
+    A[平台化转型]
+    B[Market数据显示类似转型Event导致+6.643回报参考2025-08-05至2025-...]
+    C[资本密集度降低资本支出经营现金流降至0.2]
+    D[轻资产收入增长自由现金流Revenue率提升至2.11]
+    E[运营灵活性增强流动比率4.35营运资本21.5亿美元]
+    F[Final Decision]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style F fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">4</div>
+                        <div class="chain-title">反向股票拆分公告</div>
+                    </div>
+                    <span class="direction-badge short-term-down">Short Term Down</span>
+                </div>
+                <div class="chain-content">反向股票拆分公告 → 市场数据显示类似事件导致-14.00%回报率（参考2025-06-06至2025-06-25）→ 纳斯达克合规性担忧加剧 → 投资者信心下降（-2.145%日均回报率）→ 股价压力增加 → Short Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: 反向Stock拆分公告..."]
+    A[反向Stock拆分公告]
+    B[Market数据显示类似Event导致-14.00回报率参考2025-06-06至2025-0...]
+    C[纳斯达克合规性担忧加剧]
+    D[投资者信心Down-2.145日均回报率]
+    E[Final Decision]
+    title --> A
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    style title fill:#fff2cc
+    style A fill:#e1f5fe
+    style E fill:#ffebee
+    style B fill:#f3e5f5
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+                </div>
+            </div>
+        
+            <div class="chain-card">
+                <div class="chain-header">
+                    <div class="chain-title-wrapper">
+                        <div class="chain-number">5</div>
+                        <div class="chain-title">Zillow等竞争对手对市场份额和利润率的持续压力</div>
+                    </div>
+                    <span class="direction-badge long-term-down">Long Term Down</span>
+                </div>
+                <div class="chain-content">Zillow等竞争对手对市场份额和利润率的持续压力 → 市场数据显示类似竞争压力导致-13.00%回报率（参考2024-11-05至2024-11-19） → 市场份额侵蚀（-5%市场份额） → 利润率压缩（-28.4%收入质量恶化） → Long Term Down</div>
+                <div class="mermaid-wrapper">
+                    <div class="mermaid">graph LR
+    title["Chain 5: Zillow等竞争对手对Market份额和Profit率的持..."]
+    A[Zillow等竞争对手对Market份额和Profit率的持续压力]
+    B[Market数据显示类似竞争压力导致-13.00回报率参考2024-11-05至2024-11-19]
+    C[Market份额侵蚀-5Market份额]
+    D[Profit率压缩-28.4收入质量恶化]
+    E[Long Term Down]
     title --> A
     A --> B
     B --> C
@@ -875,19 +886,19 @@
                 <div class="chain-header">
                     <div class="chain-title-wrapper">
                         <div class="chain-number">6</div>
-                        <div class="chain-title">核心软件业务收入下滑7.5%</div>
+                        <div class="chain-title">运营效率提升33%</div>
                     </div>
-                    <span class="direction-badge long-term-down">Long Term Down</span>
+                    <span class="direction-badge long-term-up">Long Term Up</span>
                 </div>
-                <div class="chain-content">核心软件业务收入下滑7.5% → 市场数据显示类似软件业务下滑事件导致-15.3%回报率（参考2023-01-15至2023-01-18）→ 投资者信心下降（-8%估值）→ 长期增长前景恶化（-5%可持续性评分）→ Long Term Down</div>
+                <div class="chain-content">运营效率提升33% → 市场数据显示类似效率提升事件导致+4.936% (参考2024-09-11至2024-09-16) → 成本结构优化(+15%毛利率改善) → 现金流生成能力增强(+2.1倍自由现金流收益率) → 规模化扩张加速(+25%市场份额增长) → Long Term Up</div>
                 <div class="mermaid-wrapper">
                     <div class="mermaid">graph LR
-    title["Chain 5: 核心软件业务收入下滑7.5..."]
-    A[核心软件业务收入下滑7.5]
-    B[Market数据显示类似软件业务下滑Event导致-15.3回报率参考2023-01-15至2...]
-    C[投资者信心Down-8估值]
-    D[Long Term增长前景恶化-5可持续性评分]
-    E[Long Term Down]
+    title["Chain 5: 运营效率提升33..."]
+    A[运营效率提升33]
+    B[Market数据显示类似效率提升Event导致+4.936 参考2024-09-11至2024...]
+    C[成本结构优化+15毛利率改善]
+    D[现金流生成能力增强+2.1倍自由现金流Revenue率]
+    E[Final Decision]
     title --> A
     A --> B
     B --> C
@@ -913,22 +924,22 @@
                 <div class="sell-side-card">
                     <h3 class="side-title sell-side-title">卖出分析</h3>
                     <div class="side-content">
-                        <p>比特币波动性带来下行风险</p>
-<p>42%股本稀释持续威胁股东价值</p>
-<p>712%市销率溢价显示估值过高</p>
-<p>核心业务收入下滑7.5%</p>
-<p>依赖比特币收益而非基本面</p>
+                        <p>抵押贷款利率接近7%导致交易量同比下降25%</p>
+<p>资本密集型模式需要大量资产负债表容量</p>
+<p>竞争压力持续挤压市场份额和利润率</p>
+<p>反向股票拆分可能疏远投资者</p>
+<p>定价错误可能破坏脆弱的利润率</p>
 
                     </div>
                 </div>
                 <div class="buy-side-card">
                     <h3 class="side-title buy-side-title">买入分析</h3>
                     <div class="side-content">
-                        <p>比特币价格上涨带动股价500%飙升</p>
-<p>特朗普政府支持加密货币政策</p>
-<p>创新融资策略实现比特币积累</p>
-<p>机构对比特币兴趣增长支持长期潜力</p>
-<p>杠杆策略在有利条件下放大收益</p>
+                        <p>毛利率从2022年负值改善至2024年5-6%</p>
+<p>调整后EBITDA首次转正显示商业模式可扩展性</p>
+<p>平台化转型减少库存风险并创造轻资产收入</p>
+<p>运营效率提升33%为市场复苏时快速扩张奠定基础</p>
+<p>与Zillow等合作伙伴关系提供有价值的交易流</p>
 
                     </div>
                 </div>
@@ -940,7 +951,7 @@
             <h2 class="section-title">商业逻辑总结</h2>
             <div class="summary-card">
                 <div class="summary-content">
-                    <p>['MSTR采用双重商业模式：企业分析软件+比特币国库策略', '通过可转债和股权发行构建杠杆比特币代理', '利用比特币流动性溢价和市场对间接加密敞口的需求', '形成"永续稀释机器"模式依赖新投资者需求', '核心软件业务自2022年起EBITDA为负', '面临更便宜直接比特币投资工具的竞争威胁']</p>
+                    <p>['iBuying模式通过现金快速收购房屋并转售获利', '成本优势来自融资利率低于竞争对手', '向卖家收取5-7%服务费并捕获买卖价差', '目标客户为追求便利性而非最高价格的卖家', '需要以低于市场价3-8%收购以覆盖成本和利润']</p>
                 </div>
             </div>
         </div>
@@ -961,11 +972,11 @@
                 <!-- Risk Panel -->
                 <div class="risk-panel">
                     <div class="metric-card">
-                        <div class="metric-value danger">0.85/1.0</div>
+                        <div class="metric-value danger">0.75/1.0</div>
                         <div class="metric-label">短期风险评分</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value warning">0.55/1.0</div>
+                        <div class="metric-value good">0.45/1.0</div>
                         <div class="metric-label">长期风险评分</div>
                     </div>
                 </div>
@@ -973,7 +984,7 @@
                 <!-- Reward Panel -->
                 <div class="reward-panel">
                     <div class="metric-card">
-                        <div class="metric-value danger">0.25/1.0</div>
+                        <div class="metric-value warning">0.35/1.0</div>
                         <div class="metric-label">短期回报评分</div>
                     </div>
                     <div class="metric-card">
@@ -988,13 +999,13 @@
                 <div class="price-in-card">
                     <h3 class="price-title price-in-title">当前价格已反映</h3>
                     <div class="price-content">
-                        <p>当前价格已充分反映比特币价格下跌风险（3.7倍贝塔放大效应）、42%股本稀释压力和高估值溢价（112%）。市场已定价短期下行风险约-22.1%，但尚未完全反映监管政策变化的潜在利好。</p>
+                        <p>当前价格已反映了反向股票拆分带来的财务困境信号和合规性担忧，市场已定价失业率上升至4.3%对消费者信心的负面影响，以及Zillow竞争压力导致的收入质量恶化-28.4%。约60%的负面因素已被消化。</p>
                     </div>
                 </div>
                 <div class="price-out-card">
                     <h3 class="price-title price-out-title">当前价格未反映</h3>
                     <div class="price-content">
-                        <p>市场未充分定价特朗普政府可能带来的加密货币监管放松（+12.5%历史回报潜力）。一旦监管环境改善，MSTR作为比特币持仓大户可能获得+15-20%上涨空间。同时核心软件业务下滑7.5%的长期影响也未完全体现。</p>
+                        <p>市场尚未充分定价平台化转型成功的潜力，EBITDA持续盈利的验证，以及美联储超预期降息带来的融资成本大幅降低。一旦这些积极因素被定价，股价可能上涨30-50%。轻资产模式和AI现金报价系统的结构性优势也未完全被认可。</p>
                     </div>
                 </div>
             </div>
@@ -1003,36 +1014,33 @@
             <div class="reasoning-container">
                 <h3 class="reasoning-title">AI风险评级分析说明</h3>
                 <div class="reasoning-bar">
-                    <div class="reasoning-text">短期高风险（0.85）：基于历史相似趋势（2024年10月、12月下跌趋势显示-3.6%日均回报），比特币价格下跌通过3.7倍贝塔放大，叠加42%股本稀释和112%估值溢价，形成三重压力。短期低回报（0.25）：缺乏正面催化剂，软件业务下滑且市场情绪谨慎。长期中等风险（0.55）：监管不确定性持续，但特朗普政策可能改善环境。长期中等回报（0.65）：比特币持仓的长期价值支撑和创新融资策略提供上行潜力，但核心业务下滑构成制约。</div>
+                    <div class="reasoning-text">短期风险较高(0.75)：反向股票拆分历史数据显示-14%回报率，失业率上升削弱消费信心，通胀限制降息空间，当前价位不安全。短期回报较低(0.35)：虽有降息预期但已被部分定价，短期缺乏强劲催化剂，投资者信心受合规担忧压制。长期风险中等(0.45)：平台化转型降低资本密集度至0.2%，自由现金流收益率2.11%，运营效率提升33%，但竞争压力持续存在。长期回报较好(0.65)：毛利率从负值改善至5-6%，轻资产模式提供结构性优势，三大催化剂任何一项实现都将彻底改变故事链条。</div>
                 </div>
             </div>
-
- 
-    
 
             <!-- Key Catalysts -->
             <div class="conclusion-card">
                 <h3 class="conclusion-title">关键催化剂</h3>
-                <div class="conclusion-text">三大关键变量：比特币价格波动（影响3.7倍贝塔系数）、政府监管政策变化（特朗普政策带来监管放松）、股本種稀速度（42%股本種稀影响持续性）。这三者任意一项的重大变化都将彻底改变MSTR的投资逻辑和价值评估。</div>
+                <div class="conclusion-text">三个关键变化点：1）美联储降息幅度超预期，大幅降低融资成本；2）平台化转型成功实现EBITDA持续盈利，验证轻资产模式；3）市场份额突破性增长，成功抵御Zillow竞争。任何一项实现都将彻底改变故事链条，从防御转向进攻态势。</div>
             </div>
 
             <!-- Short Term Impact -->
             <div class="conclusion-card">
                 <h3 class="conclusion-title">短期影响</h3>
-                <div class="conclusion-text">基于分析，MSTR在短期面临重大下行风险。比特币价格下跌通过3.7倍贝塔系数放大影响，预计导致-22.1%下行风险。同时面临42%股本種稀和112%高估值波动压力。根据历史数据，类似情况导致-15.3%回报率。在当前价位下不安全，建议谨慎观望。</div>
+                <div class="conclusion-text">短期风险较高，当前价位不安全。反向股票拆分信号财务困境，历史数据显示类似事件导致-14%回报率。失业率快速上升至4.3%削弱消费者信心，通胀压力限制美联储降息空间。Zillow等竞争对手持续施压，收入质量恶化-28.4%。短期面临合规性担忧和投资者信心下降的双重压力。</div>
             </div>
 
             <!-- Long Term Outlook -->
             <div class="conclusion-card">
                 <h3 class="conclusion-title">长期展望</h3>
-                <div class="conclusion-text">长期看法混淆但偏向正面。特朗普政策可能改善加密货币监管环境，历史数据显示类似监管放松导致+12.5%回报率。MSTR的创新融资策略和比特币国库定位供给了长期价值支撑。然而核心软件业务收入下滑7.5%构成长期挑战。在当前价位下存在不确定性，需要继续关注监管环境变化。</div>
+                <div class="conclusion-text">长期前景谨慎乐观，当前价位相对安全。平台化转型成功降低资本密集度至0.2%，自由现金流收益率提升至2.11%。运营效率提升33%支持规模化扩张，毛利率从负值改善至5-6%显示业务模式可持续性增强。轻资产模式和AI驱动现金报价系统提供结构性优势，但需克服竞争压力和实现持续盈利。</div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
             <p>由 Q&Q.AI  - 定量&定性 AI</p>
-            <p>报告生成时间: 2025-09-10 16:27:27</p>
+            <p>报告生成时间: 2025-09-11 21:55:51</p>
             <p>© 2025 Q&Q.AI - 连接数据智能</p>
         </div>
     </div>

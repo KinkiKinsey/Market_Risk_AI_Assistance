@@ -427,10 +427,10 @@ class FinancialMetricsAnalystAgent:
             await self._update_progress("analysis failed", "failed", 0, str(e))
             raise e
     
-    def close(self):
+    async def close(self):
         """Close the database connection."""
         if self.financial_read_agent:
-            self.financial_read_agent.close()
+            await self.financial_read_agent.close()
         logging.info("🔚 Financial Metrics Analyst Agent closed")
 
     def get_workflow_progress(self) -> dict:

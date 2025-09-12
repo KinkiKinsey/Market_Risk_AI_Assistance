@@ -547,7 +547,7 @@ async def main():
         sys.exit(1)
     finally:
         if 'storage' in locals():
-            storage.close()
+            await storage.close()
             logging.info("🔚 Database connection closed")
 
 

@@ -273,7 +273,7 @@ class RedisRevenueSegmentationStorage:
             logging.error(f"   - Error details: {e}")
             return []
     
-    def close(self):
+    async def close(self):
         """Close Redis connection."""
         if self.client:
             try:
@@ -511,10 +511,10 @@ class RevenueSegmentationDatabaseStorage:
             logging.error(f"   - Error details: {e}")
             return None
     
-    def close(self):
+    async def close(self):
         """Close database connection."""
         if hasattr(self, 'storage'):
-            self.storage.close()
+            await self.storage.close()
     
     def test_database_connection(self, ticker: str = "COIN") -> bool:
         """
@@ -574,7 +574,7 @@ def setup_logging(level: str = "INFO"):
     )
 
 
-def main():
+async def main():
     """Main function to handle command line arguments and execute revenue segmentation operations."""
     parser = argparse.ArgumentParser(description='Revenue Segmentation DB Agent - Simple ticker download tool')
     
@@ -680,7 +680,7 @@ def main():
         sys.exit(1)
     finally:
         if 'storage' in locals():
-            storage.close()
+            await storage.close()
             logging.info("🔚 Database connection closed")
 
 
@@ -690,4 +690,5 @@ if __name__ == "__main__":
     # python Revenue_Segmentation_DB_Agent.py TSLA
     # python Revenue_Segmentation_DB_Agent.py --list-tickers
     # python Revenue_Segmentation_DB_Agent.py AAPL --get-data
-    main()
+    import asyncio
+    asyncio.run(main())

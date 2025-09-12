@@ -903,10 +903,10 @@ class MongoDatabaseStorage:
             logging.error(traceback.format_exc())
             return {"count": 0, "total_size": 0, "error": str(e)}
     
-    def close(self):
+    async def close(self):
         """Close the MongoDB connection."""
         if self.client:
-            self.client.close()
+            await self.client.close()
             logging.info("MongoDB connection closed")
 
 

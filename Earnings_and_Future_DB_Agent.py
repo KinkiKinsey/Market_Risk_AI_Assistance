@@ -259,7 +259,7 @@ class RedisEarningsAndFutureStorage:
             logging.error(f"   - Error details: {e}")
             return []
     
-    def close(self):
+    async def close(self):
         """Close Redis connection."""
         if self.client:
             try:
@@ -483,10 +483,10 @@ class EarningsAndFutureDatabaseStorage:
             logging.error(f"   - Error details: {e}")
             return None
     
-    def close(self):
+    async def close(self):
         """Close database connection."""
         if hasattr(self, 'storage'):
-            self.storage.close()
+            await self.storage.close()
 
 
 def setup_logging(level: str = "INFO"):
@@ -609,7 +609,7 @@ async def main():
         sys.exit(1)
     finally:
         if 'storage' in locals():
-            storage.close()
+            await storage.close()
             logging.info("🔚 Database connection closed")
 
 
