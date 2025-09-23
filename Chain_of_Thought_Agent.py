@@ -337,40 +337,64 @@ class ChainOfThoughtAgent:
         """
         
         prompt = f"""
-        You are an expert financial analyst creating rigorous impact chains for client reporting.
+        You are a DEEP RESEARCH FINANCIAL ANALYST with expertise in rigorous impact analysis and fact-finding for institutional client reporting.
 
-        TASK: Based on the user query (starting event) and evidence, write a logical impact chain showing how Event A impacts Event B, then Event C, leading to final stock price impact.
+        TASK: Conduct DEEP RESEARCH and DEEP REASONING to DIG OUT THE FACTS on how the starting event creates cascading impacts. Write a comprehensive logical impact chain showing how Event A impacts Event B, then Event C, leading to final stock price impact.
+
+        DEEP RESEARCH REQUIREMENTS:
+        1. **DIG DEEP INTO FACTS** - Extract specific data points, percentages, ratios, and quantitative evidence
+        2. **DEEP REASONING** - Apply sophisticated financial logic and market dynamics analysis
+        3. **DEEP ANALYSIS** - Uncover hidden connections, secondary effects, and long-term implications
+        4. **FACT-BASED EVIDENCE** - Every step must be supported by concrete data from agent analysis results
+        5. **COMPREHENSIVE IMPACT ASSESSMENT** - Consider all dimensions: financial, operational, competitive, market sentiment
 
         INPUT DATA:
         - Ticker: {ticker}
         - Starting Event (User Query): {user_question}
         - Agent Analysis Results: {agent_analysis_results}
 
-        CRITICAL REQUIREMENT - MARKET EXPECTATION DATA FOR REFERENCE:
-        **USE HISTORICAL RETURN RATES AND DATE RANGES FOR REFERENCE**: The Market Expectation Agent provides historical data with return rates and date ranges. Use these as reference points in your impact chain analysis.
+        CRITICAL REQUIREMENT - DISTINGUISH DATA TYPES:
+        **UNDERSTAND DATA TYPES**: Distinguish between CURRENT MARKET DATA and HISTORICAL REFERENCE DATA.
 
-        MARKET EXPECTATION DATA USAGE:
-        1. **REFERENCE RETURN RATES**: Use percentage returns (e.g., "-15.3%", "+8.7%", "-22.1%") as reference points
-        2. **REFERENCE DATE RANGES**: Use historical date ranges (e.g., "from 2023-01-15 to 2023-01-18") as reference points
-        3. **NO GENERIC TERMS**: Do NOT use terms like "uptrend", "downtrend", "positive", "negative"
-        4. **ANALYSIS FOCUS**: Focus on the logical chain progression, using market data as supporting evidence
+        DATA TYPE CLASSIFICATION:
+        1. **CURRENT MARKET DATA** (from Sector Analyst, Earnings Agent):
+           - Current performance metrics (e.g., "xxx% YoY growth", "xx% revenue increase")
+           - Current market conditions (e.g., "xx-xx% market share", "xx.x% revenue from reserves")
+           - Current financial metrics (e.g., "operating margin xx.xx%", "revenue $xxxM")
+           - **USE AS**: Evidence of current performance, NOT as historical precedent
 
-        RIGOROUS LOGIC REQUIREMENTS:
+        2. **HISTORICAL REFERENCE DATA** (from Market Expectation Agent):
+           - Historical trend segments with specific date ranges (e.g., "xxxx-xx-xx to xxxx-xx-xx")
+           - Historical return percentages with verified dates
+           - **USE AS**: Historical precedent for similar events
+
+        3. **FORBIDDEN PRACTICES**:
+           - Do NOT convert current market data into fake historical references
+           - Do NOT add fake date ranges to current performance data
+           - Do NOT use current metrics as "historical precedent"
+
+        DEEP RESEARCH & RIGOROUS LOGIC REQUIREMENTS:
         1. **START WITH USER QUERY** - The starting event from the user query
-        2. **REFERENCE MARKET DATA** - Use return rates and date ranges from Market Expectation Agent as reference points
-        3. **FOLLOW LOGICAL PROGRESSION** - Each event must logically cause the next event
-        4. **USE QUANTITATIVE EVIDENCE** - Reference percentages and return rates from agent analysis results
-        5. **MAINTAIN SAME DIRECTION** - CRITICAL: If the starting event is positive/good news, show how it creates POSITIVE impact throughout the chain. If the starting event is negative/bad news, show how it creates NEGATIVE impact throughout the chain. DO NOT REVERSE THE IMPACT DIRECTION.
-        6. **ANALYSIS FOCUS** - Focus on logical chain progression with market data as supporting evidence
+        2. **DEEP FACT EXTRACTION** - DIG OUT specific numbers, percentages, ratios, financial metrics, and concrete data points
+        3. **REFERENCE MARKET DATA** - Use return rates and date ranges from Market Expectation Agent as reference points
+        4. **DEEP REASONING PROGRESSION** - Each event must logically cause the next event with sophisticated financial analysis
+        5. **QUANTITATIVE EVIDENCE** - Reference percentages, return rates, financial ratios, and concrete metrics from agent analysis results
+        6. **DEEP IMPACT ANALYSIS** - Uncover secondary effects, competitive responses, operational changes, and market dynamics
+        7. **MAINTAIN SAME DIRECTION** - CRITICAL: If the starting event is positive/good news, show how it creates POSITIVE impact throughout the chain. If the starting event is negative/bad news, show how it creates NEGATIVE impact throughout the chain. DO NOT REVERSE THE IMPACT DIRECTION.
+        8. **COMPREHENSIVE RESEARCH** - Consider financial, operational, competitive, regulatory, and market sentiment impacts
+        9. **FACT-BASED REASONING** - Every connection must be supported by concrete evidence and data
 
-        CHAIN STRUCTURE WITH MARKET DATA REFERENCE:
-        Starting Event → Market Data Reference (X% return from date1 to date2) → Intermediate Event 1 → Intermediate Event 2 → Final Stock Price Impact
+        CHAIN STRUCTURE WITH DEEP RESEARCH:
+        Starting Event → Deep Fact Extraction (specific data points) → Market Data Reference (X% return from date1 to date2) → Deep Analysis Event 1 → Deep Analysis Event 2 → Comprehensive Final Impact
 
-        MARKET EXPECTATION ELEMENTS FOR REFERENCE:
-        - **Return Rate**: Use percentage returns (e.g., "-15.3%", "+8.7%")
-        - **Date Range**: Use historical date ranges (e.g., "from 2023-01-15 to 2023-01-18")
-        - **Historical Evidence**: Reference historical return rates and date ranges
-        - **Analysis Support**: Use market data to support logical chain progression
+        DEEP RESEARCH ELEMENTS FOR COMPREHENSIVE ANALYSIS:
+        - **Current Performance Metrics**: Use current market data (e.g., "xxx% YoY growth", "xx% revenue increase") as evidence of current performance
+        - **Historical Trend Data**: Use only verified historical data with specific date ranges from Market Expectation Agent
+        - **Financial Metrics**: Extract current P/E ratios, revenue growth rates, margin changes, debt levels
+        - **Operational Data**: Reference current capacity utilization, customer concentration, market share changes
+        - **Competitive Analysis**: Include current competitor responses, market positioning, pricing dynamics
+        - **Market Evidence**: Use current market data to support logical connections, not as historical precedent
+        - **Fact-Based Support**: Use concrete current and historical data to support every logical connection
 
         DECISION RULES:
         - **LONG TERM UP**: Business strategy, future plans, structural improvements
@@ -378,13 +402,26 @@ class ChainOfThoughtAgent:
         - **LONG TERM DOWN**: Fundamental business model issues, competitive threats
         - **SHORT TERM UP**: Temporary positive catalysts, immediate market reactions
 
-        EXAMPLE CHAINS WITH MARKET DATA REFERENCE:
+        EXAMPLE CHAINS (PROPER DATA USAGE):
         
-        POSITIVE EXAMPLE (Good News → Positive Impact):
-        "New product launch → Market data shows similar launches caused +12.5% (refer from 2023-01-15 to 2023-01-18) → Increased demand (+8% revenue) → Market share growth (+5% stock price) → Short Term Up"
+        POSITIVE EXAMPLE (Current Data Usage):
+        "New product launch → Current market shows xxx% YoY growth in similar products → Increased demand (+xx% revenue) → Market share growth → Long Term Up"
         
-        NEGATIVE EXAMPLE (Bad News → Negative Impact):
-        "Tariff increase → Market data shows similar tariff events caused -15.3% (refer from 2023-01-15 to 2023-01-18) → Supply chain disruption (-3% margin) → Inventory pressure (-2% revenue) → Short Term Down"
+        NEGATIVE EXAMPLE (Current Data Usage):
+        "Operating cost pressure → Current data shows -xx.xx% operating margin → Cash flow pressure → Financial stability risk → Long Term Down"
+        
+        HISTORICAL REFERENCE EXAMPLE (Only if real historical data exists):
+        "Regulatory approval → Historical data shows +x.xxx% return from xxxx-xx-xx to xxxx-xx-xx for similar events → Institutional adoption → Revenue growth → Long Term Up"
+        
+        **CRITICAL RULES**:
+        - Use CURRENT market data as evidence of current performance
+        - Use HISTORICAL data only if it contains verified date ranges
+        - Do NOT convert current data into fake historical references
+        
+        **SPECIFIC WARNING**: 
+        - "xxx% YoY growth" is CURRENT market data, NOT historical precedent
+        - Do NOT create fake references like "类似事件导致xxx%年增长率从xxxx到xxxx"
+        - Use current data as evidence of current performance, not as historical trend
 
         OUTPUT FORMAT:
         {{
@@ -423,8 +460,8 @@ class ChainOfThoughtAgent:
         - "estimated", "return over", "last", "past", "previous"
 
         REFERENCE TERMS (USE AS REFERENCE):
-        - Percentage returns: "-15.3%", "+8.7%", "-22.1%"
-        - Date ranges: "from 2023-01-15 to 2023-01-18"
+        - Use only actual percentage returns from verified data
+        - Use only real date ranges from verified data
         - Numeric data from Market Expectation Agent
 
         CRITICAL DIRECTION RULE:
@@ -441,6 +478,14 @@ class ChainOfThoughtAgent:
         - Focus on logical chain progression with market data as reference points
         - DO NOT include "estimated", "return over", "last", "past", "previous" in the output
         - CRITICAL: final_direction field MUST be in English only
+        
+        DEEP RESEARCH FINAL INSTRUCTIONS:
+        - **DIG DEEP INTO FACTS**: Extract specific numbers, percentages, ratios, financial metrics, and concrete data points
+        - **DEEP REASONING**: Apply sophisticated financial logic and market dynamics analysis  
+        - **COMPREHENSIVE ANALYSIS**: Consider financial, operational, competitive, regulatory, and market sentiment impacts
+        - **FACT-BASED REASONING**: Every connection must be supported by concrete evidence and data
+        - **DEEP IMPACT ANALYSIS**: Uncover secondary effects, competitive responses, operational changes, and market dynamics
+        - **COMPREHENSIVE RESEARCH**: Dig out the facts on the impact with thorough analysis
         """
         
         # Add language instruction only if not English
@@ -567,9 +612,9 @@ SPECIALIZATION INSTRUCTIONS:
         
         # Create the enhanced prompt for the LLM
         prompt = f"""
-        You are an expert financial analyst creating rigorous impact chains for client reporting.
+        You are a DEEP RESEARCH FINANCIAL ANALYST with expertise in rigorous impact analysis and fact-finding for institutional client reporting.
 
-        TASK: Based on the user query (starting event) and evidence, write a logical impact chain showing how Event A impacts Event B, then Event C, leading to final stock price impact.
+        TASK: Conduct DEEP RESEARCH and DEEP REASONING to DIG OUT THE FACTS on how the starting event creates cascading impacts. Write a comprehensive logical impact chain showing how Event A impacts Event B, then Event C, leading to final stock price impact.
 
         {context_info}
 
@@ -578,14 +623,25 @@ SPECIALIZATION INSTRUCTIONS:
         - Starting Event (User Query): {user_question}
         - Agent Analysis Results: {agent_analysis_results}
 
-        CRITICAL REQUIREMENT - MARKET EXPECTATION DATA FOR REFERENCE:
-        **USE HISTORICAL RETURN RATES AND DATE RANGES FOR REFERENCE**: The Market Expectation Agent provides historical data with return rates and date ranges. Use these as reference points in your impact chain analysis.
+        CRITICAL REQUIREMENT - DISTINGUISH DATA TYPES:
+        **UNDERSTAND DATA TYPES**: Distinguish between CURRENT MARKET DATA and HISTORICAL REFERENCE DATA.
 
-        MARKET EXPECTATION DATA USAGE:
-        1. **REFERENCE RETURN RATES**: Use percentage returns (e.g., "-15.3%", "+8.7%", "-22.1%") as reference points
-        2. **REFERENCE DATE RANGES**: Use historical date ranges (e.g., "from 2023-01-15 to 2023-01-18") as reference points
-        3. **NO GENERIC TERMS**: Do NOT use terms like "uptrend", "downtrend", "positive", "negative"
-        4. **ANALYSIS FOCUS**: Focus on the logical chain progression, using market data as supporting evidence
+        DATA TYPE CLASSIFICATION:
+        1. **CURRENT MARKET DATA** (from Sector Analyst, Earnings Agent):
+           - Current performance metrics (e.g., "xxx% YoY growth", "xx% revenue increase")
+           - Current market conditions (e.g., "xx-xx% market share", "xx.x% revenue from reserves")
+           - Current financial metrics (e.g., "operating margin xx.xx%", "revenue $xxxM")
+           - **USE AS**: Evidence of current performance, NOT as historical precedent
+
+        2. **HISTORICAL REFERENCE DATA** (from Market Expectation Agent):
+           - Historical trend segments with specific date ranges (e.g., "xxxx-xx-xx to xxxx-xx-xx")
+           - Historical return percentages with verified dates
+           - **USE AS**: Historical precedent for similar events
+
+        3. **FORBIDDEN PRACTICES**:
+           - Do NOT convert current market data into fake historical references
+           - Do NOT add fake date ranges to current performance data
+           - Do NOT use current metrics as "historical precedent"
 
         RIGOROUS LOGIC REQUIREMENTS:
         1. **START WITH USER QUERY** - The starting event from the user query
@@ -600,11 +656,11 @@ SPECIALIZATION INSTRUCTIONS:
         CHAIN STRUCTURE WITH MARKET DATA REFERENCE:
         Starting Event → Market Data Reference (X% return from date1 to date2) → Intermediate Event 1 → Intermediate Event 2 → Final Stock Price Impact
 
-        MARKET EXPECTATION ELEMENTS FOR REFERENCE:
-        - **Return Rate**: Use percentage returns (e.g., "-15.3%", "+8.7%")
-        - **Date Range**: Use historical date ranges (e.g., "from 2023-01-15 to 2023-01-18")
-        - **Historical Evidence**: Reference historical return rates and date ranges
-        - **Analysis Support**: Use market data to support logical chain progression
+        MARKET EXPECTATION ELEMENTS (PROPER DATA CLASSIFICATION):
+        - **Current Market Data**: Use current performance metrics (e.g., "xxx% YoY growth") as evidence of current market conditions
+        - **Historical Trend Data**: Use only verified historical data with specific date ranges from Market Expectation Agent
+        - **Data Context**: Clearly distinguish between current performance evidence and historical precedent
+        - **Analysis Support**: Use appropriate data type to support logical chain progression
 
         DECISION RULES:
         - **LONG TERM UP**: Business strategy, future plans, structural improvements
@@ -612,13 +668,26 @@ SPECIALIZATION INSTRUCTIONS:
         - **LONG TERM DOWN**: Fundamental business model issues, competitive threats
         - **SHORT TERM UP**: Temporary positive catalysts, immediate market reactions
 
-        EXAMPLE CHAINS WITH MARKET DATA REFERENCE:
+        EXAMPLE CHAINS (PROPER DATA USAGE):
         
-        POSITIVE EXAMPLE (Good News → Positive Impact):
-        "New product launch → Market data shows similar launches caused +12.5% (refer from 2023-01-15 to 2023-01-18) → Increased demand (+8% revenue) → Market share growth (+5% stock price) → Short Term Up"
+        POSITIVE EXAMPLE (Current Data Usage):
+        "New product launch → Current market shows xxx% YoY growth in similar products → Increased demand (+xx% revenue) → Market share growth → Long Term Up"
         
-        NEGATIVE EXAMPLE (Bad News → Negative Impact):
-        "Tariff increase → Market data shows similar tariff events caused -15.3% (refer from 2023-01-15 to 2023-01-18) → Supply chain disruption (-3% margin) → Inventory pressure (-2% revenue) → Short Term Down"
+        NEGATIVE EXAMPLE (Current Data Usage):
+        "Operating cost pressure → Current data shows -xx.xx% operating margin → Cash flow pressure → Financial stability risk → Long Term Down"
+        
+        HISTORICAL REFERENCE EXAMPLE (Only if real historical data exists):
+        "Regulatory approval → Historical data shows +x.xxx% return from xxxx-xx-xx to xxxx-xx-xx for similar events → Institutional adoption → Revenue growth → Long Term Up"
+        
+        **CRITICAL RULES**:
+        - Use CURRENT market data as evidence of current performance
+        - Use HISTORICAL data only if it contains verified date ranges
+        - Do NOT convert current data into fake historical references
+        
+        **SPECIFIC WARNING**: 
+        - "xxx% YoY growth" is CURRENT market data, NOT historical precedent
+        - Do NOT create fake references like "类似事件导致xxx%年增长率从xxxx到xxxx"
+        - Use current data as evidence of current performance, not as historical trend
 
         OUTPUT FORMAT:
         {{
@@ -657,8 +726,8 @@ SPECIALIZATION INSTRUCTIONS:
         - "estimated", "return over", "last", "past", "previous"
 
         REFERENCE TERMS (USE AS REFERENCE):
-        - Percentage returns: "-15.3%", "+8.7%", "-22.1%"
-        - Date ranges: "from 2023-01-15 to 2023-01-18"
+        - Use only actual percentage returns from verified data
+        - Use only real date ranges from verified data
         - Numeric data from Market Expectation Agent
 
         CRITICAL DIRECTION RULE:

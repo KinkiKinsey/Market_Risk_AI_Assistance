@@ -1,0 +1,10 @@
+scope,factor,trend_keys,trend_count,weighted_mean,weighted_variance,average_duration,total_duration
+macro,Federal Reserve Rate Cut,"downtrend2, downtrend4, uptrend17, uptrend18",4,0.009045208333333334,0.0007577518210285732,12.0,48.0
+macro,Trump Administration Tariffs,"downtrend7, downtrend8, downtrend9, downtrend12, uptrend3, uptrend4, uptrend11, uptrend12",8,0.0029368235294117643,0.0015663317656515198,10.625,85.0
+macro,Government Shutdown Concerns,"downtrend1, downtrend2",2,-0.01060086956521739,0.0006514689803353718,11.5,23.0
+micro,Robotaxi Service Launch,"uptrend1, uptrend14, uptrend15, uptrend16",4,0.017274444444444443,0.0006924392576416805,11.25,45.0
+micro,Tesla Vehicle Recalls,"downtrend1, downtrend5, downtrend7",3,-0.027088913043478265,0.00195550421755916,15.333333333333334,46.0
+micro,Q3 Earnings Beat,"uptrend2, uptrend5",2,0.030803333333333335,0.003978694517670764,7.5,15.0
+sector,Chinese EV Competition,"downtrend3, downtrend6, downtrend10, downtrend13",4,-0.01537603448275862,0.0006828105188707512,14.5,58.0
+sector,EV Tax Credit Changes,"downtrend4, downtrend12, uptrend17",3,-0.006399666666666666,0.001620267617383603,10.0,30.0
+sector,Autonomous Vehicle Regulation,"uptrend4, uptrend7, uptrend14, uptrend16",4,0.022125111111111113,0.0011049010352196821,11.25,45.0

@@ -20,7 +20,7 @@ import redis
 
 # ─── LangChain / LangGraph ─────────────────────────────────────────
 from langchain.tools import tool
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.tools.tavily_search.tool import TavilySearchResults
 from langchain_deepseek import ChatDeepSeek
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
@@ -107,7 +107,7 @@ class NewsVerificationDB:
                 password=REDIS_CONFIG["password"],
                 decode_responses=True
             )
-            self.redis_client.ping()
+            await self.redis_client.ping()
             print(f"✅ Redis connected for user {self.user_id}")
         except Exception as e:
             print(f"❌ Redis connection failed: {e}")
@@ -142,7 +142,7 @@ class NewsVerificationDB:
             progress_key = self.frontend_progress_key
             
             # Get existing progress data
-            existing_data = self.redis_client.hgetall(progress_key)
+            existing_data = await self.redis_client.hgetall(progress_key)
             
             # Create updated data structure
             updated_data = {}
@@ -164,10 +164,10 @@ class NewsVerificationDB:
             
             # Store all data back to Redis
             if updated_data:
-                self.redis_client.hset(progress_key, mapping=updated_data)
+                await self.redis_client.hset(progress_key, mapping=updated_data)
             
             # Set expiry to clean up old progress (24 hours)
-            self.redis_client.expire(progress_key, 86400)
+            await self.redis_client.expire(progress_key, 86400)
             
             print(f"📊 Progress Update: {step} - {status} ({progress}%)")
             
@@ -203,8 +203,8 @@ class NewsVerificationDB:
             
             # Store result
             result_json = json.dumps(result_data, default=str)
-            self.redis_client.set(self.result_key, result_json)
-            self.redis_client.expire(self.result_key, 30 * 24 * 60 * 60)  # 30 days
+            await self.redis_client.set(self.result_key, result_json)
+            await self.redis_client.expire(self.result_key, 30 * 24 * 60 * 60)  # 30 days
             
             print(f"✅ Result stored for user {self.user_id}")
             return True
@@ -220,7 +220,7 @@ class NewsVerificationDB:
         
         try:
             # ✅ Use the same key that update_progress uses (frontend_progress_key)
-            progress_data = self.redis_client.hgetall(self.frontend_progress_key)
+            progress_data = await self.redis_client.hgetall(self.frontend_progress_key)
             return progress_data if progress_data else {'error': 'No progress data found'}
         except Exception as e:
             return {'error': f'Failed to get progress: {e}'}
@@ -231,7 +231,7 @@ class NewsVerificationDB:
             return {'error': 'Redis not connected'}
         
         try:
-            progress_data = self.redis_client.hgetall(self.frontend_progress_key)
+            progress_data = await self.redis_client.hgetall(self.frontend_progress_key)
             return progress_data if progress_data else {'error': 'No frontend progress data found'}
         except Exception as e:
             return {'error': f'Failed to get frontend progress: {e}'}
@@ -242,7 +242,7 @@ class NewsVerificationDB:
             return {'error': 'Redis not connected'}
         
         try:
-            result_data = self.redis_client.get(self.result_key)
+            result_data = await self.redis_client.get(self.result_key)
             if result_data:
                 return json.loads(result_data)
             else:

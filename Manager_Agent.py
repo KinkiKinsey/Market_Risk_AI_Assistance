@@ -24,28 +24,32 @@ except ImportError:
     DEEPSEEK_API_KEY = 'sk-43e9043c7ab8480393d34367f2ae997e'
 
 # Import and reload all agents
-import Market_Expectation_Agent
-import Stock_Trend_Read_Agent
-import Fundamental_Segmentation_Agent 
-import Revenue_Segmentation_Read_Agent
-import Financial_Metrics_Analyst_Agent
-import Macro_Read_Agent
-import Macro_Analyst_Agent
-import News_Verification
+# import Market_Expectation_Agent
+# import Stock_Trend_Read_Agent  # Not needed for Manager Agent
+# import Fundamental_Segmentation_Agent 
+# import Revenue_Segmentation_Read_Agent  # Not needed for Manager Agent
+# import Financial_Metrics_Analyst_Agent
+# import Macro_Read_Agent  # Not needed for Manager Agent
+# import Macro_Analyst_Agent
+# import Earnings_and_Future_Agent
+# import Sector_Analyst_Agent
+# import News_Verification  # Commented out - not used in Manager Agent
 import LLM_Call_Agent
 
-importlib.reload(Market_Expectation_Agent)
-importlib.reload(Stock_Trend_Read_Agent)
-importlib.reload(Fundamental_Segmentation_Agent)
-importlib.reload(Revenue_Segmentation_Read_Agent)
-importlib.reload(Financial_Metrics_Analyst_Agent)
-importlib.reload(Macro_Read_Agent)
-importlib.reload(Macro_Analyst_Agent)
-importlib.reload(News_Verification)
+# importlib.reload(Market_Expectation_Agent)
+# importlib.reload(Stock_Trend_Read_Agent)
+# importlib.reload(Fundamental_Segmentation_Agent)
+# importlib.reload(Revenue_Segmentation_Read_Agent)
+# importlib.reload(Financial_Metrics_Analyst_Agent)
+# importlib.reload(Macro_Read_Agent)
+# importlib.reload(Macro_Analyst_Agent)
+# importlib.reload(Earnings_and_Future_Agent)
+# importlib.reload(Sector_Analyst_Agent)
+# importlib.reload(News_Verification)  # Commented out - not used in Manager Agent
 importlib.reload(LLM_Call_Agent)
 
-from Financial_Metrics_Analyst_Agent import FinancialMetricsAnalystAgent
-from Macro_Analyst_Agent import MacroAnalystAgent
+# from Financial_Metrics_Analyst_Agent import FinancialMetricsAnalystAgent
+# from Macro_Analyst_Agent import MacroAnalystAgent
 from LLM_Call_Agent import LLMCallAgent
 
 # Redis Configuration
@@ -80,11 +84,13 @@ class Manager_Agent_Result(BaseModel):
     Decision_call_macro_analyst: int
     Decision_call_financial_metrics_analyst: int
     Decision_call_earnings_and_future: int
+    Decision_call_sector_analyst: int
     query_for_market_expectation: str      
     query_for_revenue_segmentation: str   
     query_for_macro_analyst: str      
     query_for_financial_metrics_analyst: str
     query_for_earnings_and_future: str
+    query_for_sector_analyst: str
 
 class ManagerAgent:
     def __init__(self):
@@ -194,11 +200,16 @@ class ManagerAgent:
            - Purpose: Analyze business strategy and future plans impact
            - Call when: Query involves earnings, innovation, or business strategy
 
+        6. SECTOR ANALYST AGENT:
+           - Database: Sector trends, competitor landscape, market share analysis
+           - Purpose: Analyze sector position, competitor relationships, and market share
+           - Call when: Query involves competitors, product/service percentage share in market, or sector trends, current sectors/industrial information
+
         ROUTING RULES:
-        1. **ALWAYS call Market Expectation Agent** - to find similar historical events and their stock price impact
-        2. **Call 1 additional agent** - based on the main dimension of the query
+        1. **CALL EXACTLY 2 AGENTS** - Choose the 2 most relevant agents for this query
+        2. **NO MORE, NO LESS** - Always call exactly 2 agents, never 1 or 3+
         3. **Generate 1-2 sentence queries** - focused and specific
-        4. **Market Expectation query** - exactly 1 sentence about similar historical events
+        4. **Market Expectation query** - exactly 1 sentence about similar historical events (if called)
 
         EXAMPLES:
         - Query: "Tariff impact on LULU"
@@ -206,8 +217,20 @@ class ManagerAgent:
           → Macro Analyst: "Analyze current tariff policies and their economic impact on LULU"
 
         - Query: "Revenue growth drivers"
-          → Market Expectation: "Find similar revenue growth events and their historical stock price impact"
           → Revenue Segmentation: "Analyze current revenue segments and growth drivers"
+          → Financial Metrics: "Analyze financial impact of revenue growth"
+
+        - Query: "Tesla market share in EV sector"
+          → Sector Analyst: "Analyze Tesla's current market share and competitive position in the EV sector"
+          → Market Expectation: "Find similar market share events and their historical stock price impact on TSLA"
+
+        - Query: "CRWV customer concentration risk"
+          → Revenue Segmentation: "Analyze CRWV's revenue segments and customer concentration risk"
+          → Financial Metrics: "Analyze CRWV's financial health and customer dependency impact"
+
+        - Query: "NVIDIA partnership impact"
+          → Sector Analyst: "Analyze CRWV's competitive position and NVIDIA partnership benefits"
+          → Earnings and Future: "Analyze CRWV's future development plans with NVIDIA partnership"
 
         OUTPUT FORMAT:
         {{
@@ -216,18 +239,21 @@ class ManagerAgent:
             "Decision_call_macro_analyst": 1 or 0,
             "Decision_call_financial_metrics_analyst": 1 or 0,
             "Decision_call_earnings_and_future": 1 or 0,
+            "Decision_call_sector_analyst": 1 or 0,
             "query_for_market_expectation": "Find similar [event type] events and their historical stock price impact on [ticker]",
             "query_for_revenue_segmentation": "specific question or N/A",
             "query_for_macro_analyst": "specific question or N/A",
             "query_for_financial_metrics_analyst": "specific question or N/A",
-            "query_for_earnings_and_future": "specific question or N/A"
+            "query_for_earnings_and_future": "specific question or N/A",
+            "query_for_sector_analyst": "specific question or N/A"
         }}
 
         IMPORTANT: 
-        - Always call Market Expectation Agent (decision = 1)
-        - Call exactly 1 additional agent based on query dimension
+        - Call EXACTLY 2 agents - no more, no less
+        - Choose the 2 most relevant agents for this specific query
         - Keep queries short and focused
         - Use "N/A" for agents you don't call
+        - Set decision = 1 for exactly 2 agents, decision = 0 for the other 4 agents
 
         please output in language: {language} for me, as you are api call that might handle different language in default
         """
@@ -248,16 +274,66 @@ class ManagerAgent:
         Decision_call_macro_analyst = result.Decision_call_macro_analyst
         Decision_call_financial_metrics = result.Decision_call_financial_metrics_analyst
         Decision_call_earnings_and_future = result.Decision_call_earnings_and_future
+        Decision_call_sector_analyst = result.Decision_call_sector_analyst
+        
+        # VALIDATION: Ensure exactly 2 agents are called
+        decision_list = [Decision_call_market_expectation, Decision_call_revenue_segmentation, 
+                        Decision_call_macro_analyst, Decision_call_financial_metrics, 
+                        Decision_call_earnings_and_future, Decision_call_sector_analyst]
+        
+        agents_called = sum(decision_list)
+        if agents_called != 2:
+            print(f"⚠️ WARNING: Expected exactly 2 agents, but got {agents_called} agents called")
+            print(f"Decisions: {decision_list}")
+            # Force exactly 2 agents by taking the first 2 with decision = 1
+            if agents_called > 2:
+                print("🔧 Auto-correcting: Taking first 2 agents with decision = 1")
+                count = 0
+                for i in range(len(decision_list)):
+                    if decision_list[i] == 1 and count < 2:
+                        count += 1
+                    elif decision_list[i] == 1 and count >= 2:
+                        decision_list[i] = 0
+                # Update the result object
+                result.Decision_call_market_expectation = decision_list[0]
+                result.Decision_call_revenue_segmentation = decision_list[1]
+                result.Decision_call_macro_analyst = decision_list[2]
+                result.Decision_call_financial_metrics_analyst = decision_list[3]
+                result.Decision_call_earnings_and_future = decision_list[4]
+                result.Decision_call_sector_analyst = decision_list[5]
+            elif agents_called < 2:
+                print("🔧 Auto-correcting: Adding Market Expectation Agent to reach 2 agents")
+                result.Decision_call_market_expectation = 1
+                result.query_for_market_expectation = "Find similar events and their historical stock price impact"
+                # Find another agent to call
+                if result.Decision_call_revenue_segmentation == 0:
+                    result.Decision_call_revenue_segmentation = 1
+                    result.query_for_revenue_segmentation = "Analyze revenue segments and business model"
+                elif result.Decision_call_financial_metrics_analyst == 0:
+                    result.Decision_call_financial_metrics_analyst = 1
+                    result.query_for_financial_metrics_analyst = "Analyze financial health and metrics"
+                elif result.Decision_call_sector_analyst == 0:
+                    result.Decision_call_sector_analyst = 1
+                    result.query_for_sector_analyst = "Analyze sector position and competitive landscape"
+        
+        # Re-extract after potential corrections
+        Decision_call_market_expectation = result.Decision_call_market_expectation
+        Decision_call_revenue_segmentation = result.Decision_call_revenue_segmentation
+        Decision_call_macro_analyst = result.Decision_call_macro_analyst
+        Decision_call_financial_metrics = result.Decision_call_financial_metrics_analyst
+        Decision_call_earnings_and_future = result.Decision_call_earnings_and_future
+        Decision_call_sector_analyst = result.Decision_call_sector_analyst
 
         Market_Expectation_Agent_Query = result.query_for_market_expectation
         Revenue_Segmentation_Query = result.query_for_revenue_segmentation
         Macro_Query = result.query_for_macro_analyst
         Financial_Metrics_Query = result.query_for_financial_metrics_analyst
         Earnings_and_Future_Query = result.query_for_earnings_and_future
+        Sector_Analyst_Query = result.query_for_sector_analyst
 
-        Decision_List = [Decision_call_market_expectation, Decision_call_revenue_segmentation, Decision_call_macro_analyst, Decision_call_financial_metrics, Decision_call_earnings_and_future]
-        Agent_List = ["Market_Expectation_Agent", "Revenue_Segmentation_Agent", "Macro_Analyst_Agent", "Financial_Metrics_Agent", "Earnings_and_Future_Agent"]
-        Query_List = [Market_Expectation_Agent_Query, Revenue_Segmentation_Query, Macro_Query, Financial_Metrics_Query, Earnings_and_Future_Query]
+        Decision_List = [Decision_call_market_expectation, Decision_call_revenue_segmentation, Decision_call_macro_analyst, Decision_call_financial_metrics, Decision_call_earnings_and_future, Decision_call_sector_analyst]
+        Agent_List = ["Market_Expectation_Agent", "Revenue_Segmentation_Agent", "Macro_Analyst_Agent", "Financial_Metrics_Agent", "Earnings_and_Future_Agent", "Sector_Analyst_Agent"]
+        Query_List = [Market_Expectation_Agent_Query, Revenue_Segmentation_Query, Macro_Query, Financial_Metrics_Query, Earnings_and_Future_Query, Sector_Analyst_Query]
 
         Agents_Calling_Form = {}
         for i in range(len(Decision_List)):
@@ -312,7 +388,8 @@ class ManagerAgent:
                 llm_tracker.stamp("Market Agent Start", "Market")
                 result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Market Agent End", "Market")
-                return result.get('stock_read_result', 'No result')
+                # Return full structured result for Chain of Thought
+                return result
             except asyncio.TimeoutError:
                 print("❌ Market Agent timed out after 400 seconds")
                 return "Market Agent timed out"
@@ -323,6 +400,15 @@ class ManagerAgent:
                 await a.close()
 
         async def run_revenue(q):
+            import sys
+            import os
+            from pathlib import Path
+            
+            # Add current directory to sys.path for multiprocessing
+            current_dir = Path(__file__).parent.absolute()
+            if str(current_dir) not in sys.path:
+                sys.path.insert(0, str(current_dir))
+            
             from Fundamental_Segmentation_Agent import FundamentalSegmentationAgent
             if shared_clients:
                 a = FundamentalSegmentationAgent(
@@ -340,7 +426,8 @@ class ManagerAgent:
                 llm_tracker.stamp("Revenue Agent Start", "Revenue")
                 result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Revenue Agent End", "Revenue")
-                return result.get('revenue_analysis', 'No result')
+                # Return full structured result for Chain of Thought
+                return result
             except asyncio.TimeoutError:
                 print("❌ Revenue Agent timed out after 300 seconds")
                 return "Revenue Agent timed out"
@@ -371,7 +458,8 @@ class ManagerAgent:
                 llm_tracker.stamp("Macro Agent Start", "Macro")
                 result = await asyncio.wait_for(a.process_macro_query(q), timeout=300)
                 llm_tracker.stamp("Macro Agent End", "Macro")
-                return result.get('llm_response', 'No result')
+                # Return full structured result for Chain of Thought
+                return result
             except asyncio.TimeoutError:
                 print("❌ Macro Agent timed out after 150 seconds")
                 return "Macro Agent timed out"
@@ -407,7 +495,8 @@ class ManagerAgent:
                 llm_tracker.stamp("Financial Agent Start", "Financial")
                 result = await asyncio.wait_for(a.process_query(q, ticker), timeout=300)
                 llm_tracker.stamp("Financial Agent End", "Financial")
-                return result.get('llm_response', 'No result')
+                # Return full structured result for Chain of Thought
+                return result
             except asyncio.TimeoutError:
                 print("❌ Financial Agent timed out after 300 seconds")
                 return "Financial Agent timed out"
@@ -437,13 +526,54 @@ class ManagerAgent:
                 llm_tracker.stamp("Earnings Agent Start", "Earnings")
                 result = await asyncio.wait_for(a.process_natural_query(q, ticker), timeout=500)
                 llm_tracker.stamp("Earnings Agent End", "Earnings")
-                return result.get('earnings_read_result', 'No result')
+                # Return full structured result for Chain of Thought
+                return result
             except asyncio.TimeoutError:
                 print("❌ Earnings Agent timed out after 500 seconds")
                 return "Earnings Agent timed out"
             except Exception as e:
                 print(f"❌ Earnings Agent error: {e}")
                 return f"Earnings Agent error: {str(e)}"
+            finally:
+                await a.close()
+
+        async def run_sector(q):
+            import sys
+            import os
+            from pathlib import Path
+            
+            # Add current directory to sys.path for multiprocessing
+            current_dir = Path(__file__).parent.absolute()
+            if str(current_dir) not in sys.path:
+                sys.path.insert(0, str(current_dir))
+            
+            from Sector_Analyst_Agent import SectorAnalystAgent
+            if shared_clients:
+                a = SectorAnalystAgent(
+                    shared_clients=shared_clients,
+                    user_id="default_user"
+                )
+            else:
+                a = SectorAnalystAgent(
+                    redis_host=REDIS_CONFIG['host'],
+                    redis_port=REDIS_CONFIG['port'],
+                    redis_password=REDIS_CONFIG['password'],
+                    user_id="default_user"
+                )
+            try:
+                # Track timing
+                from shared_clients import llm_tracker
+                llm_tracker.stamp("Sector Agent Start", "Sector")
+                result = await asyncio.wait_for(a.process_sector_analysis(ticker, q), timeout=300)
+                llm_tracker.stamp("Sector Agent End", "Sector")
+                # Return full structured result including asset_relative for Chain of Thought
+                return result
+            except asyncio.TimeoutError:
+                print("❌ Sector Agent timed out after 300 seconds")
+                return "Sector Agent timed out"
+            except Exception as e:
+                print(f"❌ Sector Agent error: {e}")
+                return f"Sector Agent error: {str(e)}"
             finally:
                 await a.close()
 
@@ -470,6 +600,9 @@ class ManagerAgent:
                 keys.append(f"{name}_Result")
             elif name == "Earnings_and_Future_Agent":
                 tasks.append(asyncio.create_task(run_earnings(q)))
+                keys.append(f"{name}_Result")
+            elif name == "Sector_Analyst_Agent":
+                tasks.append(asyncio.create_task(run_sector(q)))
                 keys.append(f"{name}_Result")
             else:
                 print(f"⚠️ Unknown agent: {name}")
@@ -522,6 +655,7 @@ class ManagerAgent:
         print(f"Macro Analyst Agent: {'✅ CALL' if result.Decision_call_macro_analyst else '❌ SKIP'}")
         print(f"Financial Metrics Agent: {'✅ CALL' if result.Decision_call_financial_metrics_analyst else '❌ SKIP'}")
         print(f"Earnings and Future Agent: {'✅ CALL' if result.Decision_call_earnings_and_future else '❌ SKIP'}")
+        print(f"Sector Analyst Agent: {'✅ CALL' if result.Decision_call_sector_analyst else '❌ SKIP'}")
 
         print("\n🔍 Generated Queries:")
         if result.Decision_call_market_expectation:
@@ -534,11 +668,15 @@ class ManagerAgent:
             print(f"Financial: {result.query_for_financial_metrics_analyst}")
         if result.Decision_call_earnings_and_future:
             print(f"Earnings: {result.query_for_earnings_and_future}")
+        if result.Decision_call_sector_analyst:
+            print(f"Sector: {result.query_for_sector_analyst}")
         
         # Step 2: Create agent calling form
         print("\n2️⃣ Creating Agent Calling Form...")
         agents_calling_form, decision_list, agent_list, query_list = self.create_agent_calling_form(result)
+        agents_count = sum(decision_list)
         print(f"Agents to call: {agents_calling_form}")
+        print(f"✅ Confirmed: Exactly {agents_count} agents will be executed")
         
         # Step 3: Call agents dynamically
         print("\n3️⃣ Calling Agents Dynamically...")
@@ -863,8 +1001,8 @@ SPECIALIZATION INSTRUCTIONS:
         - Only return the JSON object, no other text
         - Use "N/A" for agents you don't call (decision = 0)
         - Make questions specific and actionable (1 sentence max)
-        - Focus on the 2 most relevant aspects of the user query
-        - CRITICAL: For ANY query, call 2 agents minimum (notice, Market Expectation will return price impact under any events)
+        - Call EXACTLY 2 agents - no more, no less
+        - Choose the 2 most relevant agents for this specific query
         - SPECIALIZATION: Choose agents that provide unique perspective from other queries
         """
         

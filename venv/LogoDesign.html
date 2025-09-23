@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&Q.AI Logo - Premium Design</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+        }
+
+        .logo-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 60px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: 30px;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff);
+            border-radius: 50%;
+            animation: particle-float 8s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes particle-float {
+            0% { 
+                transform: translateY(100vh) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% { 
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(-100px) translateX(100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .logo-svg {
+            filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.6));
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.6)); }
+            50% { filter: drop-shadow(0 0 50px rgba(118, 75, 162, 0.8)); }
+        }
+
+        .text-content {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: 200;
+            color: #ffffff;
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            animation: text-glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes text-glow {
+            from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+            to { text-shadow: 0 0 30px rgba(118, 75, 162, 0.8), 0 0 40px rgba(102, 126, 234, 0.3); }
+        }
+
+        .tagline {
+            font-size: 12px;
+            font-weight: 100;
+            color: #a0aec0;
+            letter-spacing: 3px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .infinity-symbol {
+            font-size: 20px;
+            color: #667eea;
+            margin: 0 8px;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 25px;
+            gap: 30px;
+        }
+
+        .feature {
+            text-align: center;
+            color: #cbd5e0;
+            font-size: 11px;
+            font-weight: 200;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            padding: 8px 16px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            opacity: 1;
+            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Create multiple particles */
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 6s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 7s; }
+        .particle:nth-child(9) { left: 90%; animation-delay: 0.5s; }
+        .particle:nth-child(10) { left: 15%; animation-delay: 1.5s; }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <!-- Floating particles background -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <!-- Main logo SVG - Two intersecting ellipses -->
+        <svg class="logo-svg" width="360" height="150" viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Clean gradient for modern look -->
+                <linearGradient id="cleanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+                        <animate attributeName="stop-color" 
+                                values="#667eea;#764ba2;#667eea" 
+                                dur="4s" repeatCount="indefinite"/>
+                    </stop>
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1">
+                        <animate attributeName="stop-color" 
+                                values="#764ba2;#667eea;#764ba2" 
+                                dur="4s" repeatCount="indefinite"/>
+                    </stop>
+                </linearGradient>
+
+                <!-- Subtle glow -->
+                <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+
+                <!-- Mask for intersection area -->
+                <mask id="intersectionMask">
+                    <rect width="360" height="150" fill="white"/>
+                    <ellipse cx="150" cy="65" rx="50" ry="25" fill="black" opacity="0.3"/>
+                </mask>
+            </defs>
+            
+            <!-- First Ellipse (Top-Left position) -->
+            <ellipse cx="150" cy="65" rx="50" ry="25" 
+                  fill="none"
+                  stroke="url(#cleanGradient)" 
+                  stroke-width="5"
+                  filter="url(#subtleGlow)"
+                  opacity="0.9">
+                <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="stroke-width" values="5;7;5" dur="4s" repeatCount="indefinite"/>
+            </ellipse>
+
+            <!-- Second Ellipse (Bottom-Right position) - Intersecting with first -->
+            <ellipse cx="210" cy="85" rx="50" ry="25" 
+                  fill="none"
+                  stroke="url(#cleanGradient)" 
+                  stroke-width="5"
+                  filter="url(#subtleGlow)"
+                  opacity="0.9">
+                <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                <animate attributeName="stroke-width" values="5;7;5" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </ellipse>
+
+            <!-- Intersection area highlight (approximate) -->
+            <ellipse cx="180" cy="75" rx="20" ry="12" 
+                  fill="url(#cleanGradient)" 
+                  opacity="0.25"
+                  filter="url(#subtleGlow)">
+                <animate attributeName="opacity" values="0.25;0.4;0.25" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+
+            <!-- Optional: subtle inner glow for top-left ellipse -->
+            <ellipse cx="150" cy="65" rx="45" ry="20" 
+                  fill="url(#cleanGradient)" 
+                  opacity="0.1"
+                  filter="url(#subtleGlow)">
+                <animate attributeName="opacity" values="0.1;0.2;0.1" dur="4s" repeatCount="indefinite"/>
+            </ellipse>
+
+            <!-- Optional: subtle inner glow for bottom-right ellipse -->
+            <ellipse cx="210" cy="85" rx="45" ry="20" 
+                  fill="url(#cleanGradient)" 
+                  opacity="0.1"
+                  filter="url(#subtleGlow)">
+                <animate attributeName="opacity" values="0.1;0.2;0.1" dur="4s" repeatCount="indefinite" begin="1.5s"/>
+            </ellipse>
+        </svg>
+
+        <div class="text-content">
+            <div class="company-name">Q&Q.AI</div>
+            <div class="tagline">QUANTITATIVE <span class="infinity-symbol">∞</span> QUALITATIVE</div>
+            
+            <div class="features">
+                <div class="feature">DATA BRIDGE</div>
+                <div class="feature">AI POWERED</div>
+                <div class="feature">INSIGHTS</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

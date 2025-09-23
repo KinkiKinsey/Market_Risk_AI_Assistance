@@ -42,13 +42,12 @@ except ImportError:
     DEEPSEEK_AVAILABLE = False
     print("Warning: openai not available for DeepSeek. Install with: pip install openai")
 
-# Configure logging
+# COMPLETELY SILENT - No logging output
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.CRITICAL,  # Only show critical errors
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('llm_agent.log')
+        logging.NullHandler()  # No output at all
     ]
 )
 

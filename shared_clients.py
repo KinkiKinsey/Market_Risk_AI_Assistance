@@ -60,7 +60,7 @@ except ImportError:
 try:
     from LLM_Call_Agent import LLMCallAgent, OPENAI_API_KEY as EXISTING_OPENAI_KEY, DEEPSEEK_API_KEY as EXISTING_DEEPSEEK_KEY
     LLM_CALL_AGENT_AVAILABLE = True
-    print("✅ LLM_Call_Agent integration available")
+    # print("✅ LLM_Call_Agent integration available")  # Silent
 except ImportError:
     LLM_CALL_AGENT_AVAILABLE = False
     print("⚠️ LLM_Call_Agent not available - using direct API keys")
@@ -73,7 +73,7 @@ except ImportError:
 if LLM_CALL_AGENT_AVAILABLE:
     OPENAI_API_KEY = EXISTING_OPENAI_KEY
     DEEPSEEK_API_KEY = EXISTING_DEEPSEEK_KEY
-    print("✅ Using API keys from LLM_Call_Agent")
+    # print("✅ Using API keys from LLM_Call_Agent")  # Silent
 else:
     OPENAI_API_KEY = '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'
     DEEPSEEK_API_KEY = 'sk-43e9043c7ab8480393d34367f2ae997e'
@@ -135,9 +135,7 @@ class SharedClientPool:
         self.frontend_redis_pool: Optional[aioredis.Redis] = None
         self.stock_trend_redis_pool: Optional[aioredis.Redis] = None
         
-        # Backup Redis clients (for when aioredis is not available)
-        self.frontend_redis_backup = None
-        self.stock_trend_redis_backup = None
+        # No backup clients - fail fast if aioredis not available
         
         # HTTP Session
         self.http_session: Optional[aiohttp.ClientSession] = None
@@ -155,7 +153,7 @@ class SharedClientPool:
         self.total_requests = 0
         self.error_count = 0
         
-        print("🤖 Shared Client Pool created (not initialized yet)")
+        # print("🤖 Shared Client Pool created (not initialized yet)")  # Silent
     
     async def initialize(self) -> bool:
         """
@@ -173,7 +171,7 @@ class SharedClientPool:
         # Prevent multiple simultaneous initializations
         async with self._initialization_lock:
             if self._initialized:
-                print("✅ Shared clients already initialized")
+                # print("✅ Shared clients already initialized")  # Silent
                 return True
             
             start_time = asyncio.get_event_loop().time()
@@ -196,13 +194,13 @@ class SharedClientPool:
                 self._initialized = True
                 self.initialization_time = asyncio.get_event_loop().time() - start_time
                 
-                print(f"✅ Shared client pool initialized successfully!")
+                # print(f"✅ Shared client pool initialized successfully!")  # Silent
                 print(f"⏱️ Initialization time: {self.initialization_time:.2f} seconds")
-                print(f"🔗 OpenAI: {'✅' if self.openai_client else '❌'}")
-                print(f"🔗 DeepSeek: {'✅' if self.deepseek_client else '❌'}")
-                print(f"🔗 Frontend Redis: {'✅' if self.frontend_redis_pool else '❌'}")
-                print(f"🔗 Stock Trend Redis: {'✅' if self.stock_trend_redis_pool else '❌'}")
-                print(f"🔗 HTTP Session: {'✅' if self.http_session else '❌'}")
+                # print(f"🔗 OpenAI: {'✅' if self.openai_client else '❌'}")  # Silent
+                # print(f"🔗 DeepSeek: {'✅' if self.deepseek_client else '❌'}")  # Silent
+                # print(f"🔗 Frontend Redis: {'✅' if self.frontend_redis_pool else '❌'}")  # Silent
+                # print(f"🔗 Stock Trend Redis: {'✅' if self.stock_trend_redis_pool else '❌'}")  # Silent
+                # print(f"🔗 HTTP Session: {'✅' if self.http_session else '❌'}")  # Silent
                 
                 return True
                 
@@ -226,7 +224,7 @@ class SharedClientPool:
                     default_model="deepseek-chat"
                 )
                 self.use_legacy_llm_agent = True
-                print("✅ Using existing LLM_Call_Agent for LLM operations")
+                # print("✅ Using existing LLM_Call_Agent for LLM operations")  # Silent
                 return
             except Exception as e:
                 print(f"⚠️ LLM_Call_Agent initialization failed: {e}")
@@ -242,7 +240,7 @@ class SharedClientPool:
         # Initialize OpenAI client
         if OPENAI_API_KEY:
             self.openai_client = OpenAI(api_key=OPENAI_API_KEY)
-            print("✅ OpenAI client initialized (direct)")
+            # print("✅ OpenAI client initialized (direct)")  # Silent
         else:
             print("⚠️ No OpenAI API key provided")
         
@@ -252,7 +250,7 @@ class SharedClientPool:
                 api_key=DEEPSEEK_API_KEY, 
                 base_url="https://api.deepseek.com"
             )
-            print("✅ DeepSeek client initialized (direct)")
+            # print("✅ DeepSeek client initialized (direct)")  # Silent
         else:
             print("⚠️ No DeepSeek API key provided")
         
@@ -267,7 +265,7 @@ class SharedClientPool:
                     default_model="deepseek-chat"
                 )
                 self.use_legacy_llm_agent = True
-                print("✅ Created LLM agent using direct initialization")
+                # print("✅ Created LLM agent using direct initialization")  # Silent
             except Exception as e:
                 print(f"❌ CRITICAL: Failed to create LLM agent: {e}")
                 # Set to None but don't raise exception - let agents handle it
@@ -279,29 +277,7 @@ class SharedClientPool:
         print("🗄️ Initializing Redis pools...")
         
         if not AIOREDIS_AVAILABLE:
-            print("⚠️ aioredis library not available, using backup Redis clients")
-            # Use backup Redis clients
-            try:
-                import redis
-                self.frontend_redis_backup = redis.Redis(
-                    host=FRONTEND_REDIS_CONFIG['host'],
-                    port=FRONTEND_REDIS_CONFIG['port'],
-                    username=FRONTEND_REDIS_CONFIG['username'],
-                    password=FRONTEND_REDIS_CONFIG['password'],
-                    decode_responses=True
-                )
-                self.stock_trend_redis_backup = redis.Redis(
-                    host=STOCK_TREND_REDIS_CONFIG['host'],
-                    port=STOCK_TREND_REDIS_CONFIG['port'],
-                    username=STOCK_TREND_REDIS_CONFIG['username'],
-                    password=STOCK_TREND_REDIS_CONFIG['password'],
-                    decode_responses=True
-                )
-                print("✅ Backup Redis clients initialized")
-                return
-            except Exception as e:
-                print(f"❌ Backup Redis clients failed: {e}")
-                return
+            raise Exception("❌ aioredis library not available. Install with: pip install aioredis")
         
         # Initialize Frontend Redis pool
         try:
@@ -311,7 +287,7 @@ class SharedClientPool:
                 max_connections=REDIS_MAX_CONNECTIONS,
                 decode_responses=True
             )
-            print("✅ Frontend Redis pool initialized")
+            # print("✅ Frontend Redis pool initialized")  # Silent
         except Exception as e:
             print(f"❌ Frontend Redis pool failed: {e}")
         
@@ -323,7 +299,7 @@ class SharedClientPool:
                 max_connections=REDIS_MAX_CONNECTIONS,
                 decode_responses=True
             )
-            print("✅ Stock Trend Redis pool initialized")
+            # print("✅ Stock Trend Redis pool initialized")  # Silent
         except Exception as e:
             print(f"❌ Stock Trend Redis pool failed: {e}")
     
@@ -343,7 +319,7 @@ class SharedClientPool:
                     limit_per_host=HTTP_MAX_PER_HOST
                 )
             )
-            print("✅ HTTP session initialized")
+            # print("✅ HTTP session initialized")  # Silent
         except Exception as e:
             print(f"❌ HTTP session failed: {e}")
     
@@ -351,39 +327,25 @@ class SharedClientPool:
         """Test all connections to ensure they work"""
         print("🧪 Testing connections...")
         
-        # Test Redis connections
-        if self.frontend_redis_pool:
-            try:
-                await self.frontend_redis_pool.ping()
-                print("✅ Frontend Redis connection test passed")
-            except Exception as e:
-                print(f"❌ Frontend Redis test failed: {e}")
-        elif self.frontend_redis_backup:
-            try:
-                self.frontend_redis_backup.ping()
-                print("✅ Frontend Redis backup test passed")
-            except Exception as e:
-                print(f"❌ Frontend Redis backup test failed: {e}")
-        
-        if self.stock_trend_redis_pool:
-            try:
-                await self.stock_trend_redis_pool.ping()
-                print("✅ Stock Trend Redis connection test passed")
-            except Exception as e:
-                print(f"❌ Stock Trend Redis test failed: {e}")
-        elif self.stock_trend_redis_backup:
-            try:
-                self.stock_trend_redis_backup.ping()
-                print("✅ Stock Trend Redis backup test passed")
-            except Exception as e:
-                print(f"❌ Stock Trend Redis backup test failed: {e}")
+        # Test Redis connections - fail fast if not available
+        if not self.frontend_redis_pool:
+            raise Exception("❌ Frontend Redis pool not initialized")
+        if not self.stock_trend_redis_pool:
+            raise Exception("❌ Stock Trend Redis pool not initialized")
+            
+        try:
+            await self.frontend_redis_pool.ping()
+            await self.stock_trend_redis_pool.ping()
+            print("✅ All Redis connections verified")
+        except Exception as e:
+            raise Exception(f"❌ Redis connection test failed: {e}")
         
         # Test HTTP session
         if self.http_session:
             try:
                 async with self.http_session.get("https://httpbin.org/get") as response:
                     if response.status == 200:
-                        print("✅ HTTP session test passed")
+                        pass  # HTTP session test passed (silent)
                     else:
                         print(f"❌ HTTP session test failed: {response.status}")
             except Exception as e:
@@ -422,7 +384,7 @@ class SharedClientPool:
             self.stock_trend_redis_pool = None
         
         self._initialized = False
-        print("✅ Shared client pool closed")
+        # print("✅ Shared client pool closed")  # Silent
     
     def get_llm_agent(self):
         """Get LLM call agent"""
@@ -430,19 +392,15 @@ class SharedClientPool:
     
     def get_frontend_redis(self):
         """Get frontend Redis connection"""
-        if self.frontend_redis_pool:
-            return self.frontend_redis_pool
-        elif self.frontend_redis_backup:
-            return self.frontend_redis_backup
-        return None
+        if not self.frontend_redis_pool:
+            raise Exception("❌ Frontend Redis pool not available")
+        return self.frontend_redis_pool
     
     def get_stock_trend_redis(self):
         """Get stock trend Redis connection"""
-        if self.stock_trend_redis_pool:
-            return self.stock_trend_redis_pool
-        elif self.stock_trend_redis_backup:
-            return self.stock_trend_redis_backup
-        return None
+        if not self.stock_trend_redis_pool:
+            raise Exception("❌ Stock Trend Redis pool not available")
+        return self.stock_trend_redis_pool
     
     def get_earnings_redis(self):
         """Get earnings Redis connection (alias for stock trend)"""
@@ -467,8 +425,8 @@ class SharedClientPool:
             "use_legacy_llm_agent": self.use_legacy_llm_agent,
             "openai_client_available": self.openai_client is not None,
             "deepseek_client_available": self.deepseek_client is not None,
-            "frontend_redis_available": self.frontend_redis_pool is not None or self.frontend_redis_backup is not None,
-            "stock_trend_redis_available": self.stock_trend_redis_pool is not None or self.stock_trend_redis_backup is not None,
+            "frontend_redis_available": self.frontend_redis_pool is not None,
+            "stock_trend_redis_available": self.stock_trend_redis_pool is not None,
             "http_session_available": self.http_session is not None,
             # 🚀 NEW: Semaphore status
             "openai_semaphore_value": self.sem_openai._value if hasattr(self.sem_openai, '_value') else 'N/A',
@@ -571,14 +529,14 @@ def show_performance_stats():
     
     print("📊 Shared Clients Performance Stats:")
     print("=" * 40)
-    print(f"✅ Initialized: {status['initialized']}")
+    # print(f"✅ Initialized: {status['initialized']}")  # Silent
     print(f"⏱️ Init Time: {status['initialization_time']:.2f}s")
     print(f"📈 Total Requests: {status['total_requests']}")
     print(f"❌ Errors: {status['error_count']}")
-    print(f"🤖 LLM Agent: {'✅ Shared' if status['use_legacy_llm_agent'] else '❌ Direct'}")
-    print(f"🗄️ Frontend Redis: {'✅' if status['frontend_redis_available'] else '❌'}")
-    print(f"🗄️ Stock Trend Redis: {'✅' if status['stock_trend_redis_available'] else '❌'}")
-    print(f"🌐 HTTP Session: {'✅' if status['http_session_available'] else '❌'}")
+    # print(f"🤖 LLM Agent: {'✅ Shared' if status['use_legacy_llm_agent'] else '❌ Direct'}")  # Silent
+    # print(f"🗄️ Frontend Redis: {'✅' if status['frontend_redis_available'] else '❌'}")  # Silent
+    # print(f"🗄️ Stock Trend Redis: {'✅' if status['stock_trend_redis_available'] else '❌'}")  # Silent
+    # print(f"🌐 HTTP Session: {'✅' if status['http_session_available'] else '❌'}")  # Silent
     # 🚀 NEW: Semaphore status
     print(f"🔒 OpenAI Semaphore: {status['openai_semaphore_value']}")
     print(f"🔒 DeepSeek Semaphore: {status['deepseek_semaphore_value']}")
@@ -797,18 +755,18 @@ def patch_llm_call_agent():
     import sys
     import types
     
-    # Create a mock module that exports our compatibility class
-    mock_module = types.ModuleType('LLM_Call_Agent')
-    mock_module.LLMCallAgent = LLMCallAgentCompatibility
+    # Create a compatibility module that exports our compatibility class
+    compatibility_module = types.ModuleType('LLM_Call_Agent')
+    compatibility_module.LLMCallAgent = LLMCallAgentCompatibility
     
     # Add the original constants for compatibility
-    mock_module.OPENAI_API_KEY = OPENAI_API_KEY
-    mock_module.DEEPSEEK_API_KEY = DEEPSEEK_API_KEY
+    compatibility_module.OPENAI_API_KEY = OPENAI_API_KEY
+    compatibility_module.DEEPSEEK_API_KEY = DEEPSEEK_API_KEY
     
     # Replace the module in sys.modules
-    sys.modules['LLM_Call_Agent'] = mock_module
+    sys.modules['LLM_Call_Agent'] = compatibility_module
     
-    print("✅ LLM_Call_Agent patched to use shared clients")
+    # print("✅ LLM_Call_Agent patched to use shared clients")  # Silent
 
 # ============================================================================
 # AUTO-PATCHING - Apply patch when shared_clients is imported
