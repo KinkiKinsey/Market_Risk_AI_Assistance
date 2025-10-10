@@ -51,6 +51,7 @@ class TrendSegment:
     macro_reason: str
     micro_reason: str
     return_variance: float
+    spy_return_rate: float
 
 class StockTrendAnalystAgent:
     """
@@ -298,7 +299,8 @@ class StockTrendAnalystAgent:
             duration=trend_data.get('How Long it Take', 0.0),
             macro_reason=trend_data.get('summary', {}).get('macro_reason', ''),
             micro_reason=trend_data.get('summary', {}).get('micro_reason', ''),
-            return_variance=trend_data.get('return rate variance', 0.0)
+            return_variance=trend_data.get('return rate variance', 0.0),
+            spy_return_rate=trend_data.get('SPY_return_rate', 0.0)
         )
     
     def get_current_trend_info(self, include_price_distribution: bool = True) -> Dict:
@@ -327,6 +329,7 @@ class StockTrendAnalystAgent:
                 "estimate_price": trend_data.get('Estimate_price', 0.0),
                 "duration": trend_data.get('How Long it Take', 0.0),
                 "return_variance": trend_data.get('return rate variance', 0.0),
+                "spy_return_rate": trend_data.get('SPY_return_rate', 0.0),
                 "macro_reason": trend_data.get('summary', {}).get('macro_reason', ''),
                 "micro_reason": trend_data.get('summary', {}).get('micro_reason', '')
             }
@@ -376,7 +379,8 @@ class StockTrendAnalystAgent:
                 "max_return": trend_data.get('Max Return', 0.0),
                 "estimate_price": trend_data.get('Estimate_price', 0.0),
                 "duration": trend_data.get('How Long it Take', 0.0),
-                "return_variance": trend_data.get('return rate variance', 0.0)
+                "return_variance": trend_data.get('return rate variance', 0.0),
+                "spy_return_rate": trend_data.get('SPY_return_rate', 0.0)
             }
             
             if include_analysis:
@@ -509,7 +513,8 @@ class StockTrendAnalystAgent:
                 "return_variance": trend_data.get('return rate variance', 0.0),
                 "max_return": trend_data.get('Max Return', 0.0),
                 "day_average_return": trend_data.get('day average_return', 0.0),
-                "slope": trend_data.get('Slope of stock trend', 0.0)
+                "slope": trend_data.get('Slope of stock trend', 0.0),
+                "spy_return_rate": trend_data.get('SPY_return_rate', 0.0)
             }
             
             if include_risk_metrics:
@@ -584,31 +589,47 @@ class StockTrendAnalystAgent:
 You MUST structure your response in EXACTLY ONE section:
 
 **SIMILAR TREND MAPPING**: 
-- **MAPPING RULE: Find trends with similar macro + micro conditions**
-  - Analyze user query for macro/micro context
-  - Search database for trends with matching macro_reason + micro_reason patterns
-  - Map multiple trends if they have similar macro/micro conditions
-  - Focus on PRECISION, not quantity - only include highly relevant matches
-  - Match either uptrend or downtrend based on query context
+- **ENHANCED MAPPING RULE: Find trends with detailed macro + micro condition analysis**
+  - Analyze user query for SPECIFIC macro/micro context with concrete details
+  - Search database for trends with MATCHING detailed macro_reason + micro_reason patterns
+  - Map multiple trends if they share SPECIFIC actionable macro/micro similarities
+  - Focus on PRECISION with DETAILED EXPLANATIONS, not quantity - include highly relevant matches with context
+  - Match either uptrend or downtrend based on query context with quantitative justification
 
-- **MUST use EXACT FORMAT with detailed price distribution:**
+- **CRITICAL EXPECTATION vs DELIVERY ANALYSIS:**
+  - **EXPECTATION PHASE**: When news/events are anticipated but not yet delivered
+    - Good news expectation → Stock price typically RISES (positive sentiment)
+    - Bad news expectation → Stock price typically FALLS (negative sentiment)
+  - **DELIVERY PHASE**: When news/events are actually delivered/announced
+    - Good news delivery that meets/exceeds expectations → Stock price RISES
+    - Good news delivery that disappoints → Stock price FALLS (sell the news)
+    - Bad news delivery that's worse than expected → Stock price FALLS
+    - Bad news delivery that's better than expected → Stock price RISES (relief rally)
+  - **ALWAYS IDENTIFY**: Whether the macro/micro reason represents EXPECTATION or DELIVERY
+  - **EXPLAIN THE IMPACT**: Why expectation vs delivery caused the specific price movement
+
+- **ENHANCED BUT CONCISE FORMAT with bullet point style:**
   ```
-  <Similar Trend Time: [trend_name] [start_date, end_date]>
-  <Reason: because similar macro as [macro_reason], micro as [micro_reason]>
-  <Similar Trend Price: start: [start_date], end: [end_date], day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, return_variance: [X.XXXXXX], volatility: [X.XX%]>
+  <Similar Trend Time: [trend_name] [start_date, end_date] ([duration] days)>
+  <Reason: similar macro as [concrete_macro_reason] ([EXPECTATION/DELIVERY]), micro as [concrete_micro_reason] ([EXPECTATION/DELIVERY])>
+  <Impact Analysis: [EXPECTATION/DELIVERY] of [event] caused [price_movement] because [explanation]>
+  <Similar Trend Price: day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, volatility: [X.XX%]>
   ```
 
-- **INCLUDE ALL PRICE DISTRIBUTION VARIABLES from database:**
-  - start, end, day_avg_return, slope, max_return, estimate_price, duration, return_variance, volatility
+- **INCLUDE ALL ENHANCED PRICE DISTRIBUTION VARIABLES with contextual explanations:**
+  - Include EXACT database values with specific facts only
+  - Keep analysis CONCISE but concrete (no vague terms)
   - **USE EXACT macro_reason and micro_reason from database summary field**
+  - **ALWAYS CLASSIFY as EXPECTATION or DELIVERY and explain the impact**
   - Do NOT make up or approximate values
 
-- **MAPPING STRATEGY:**
-  1. Identify macro themes in user query (policy, earnings, AI, etc.)
-  2. Find trends with similar macro_reason patterns
-  3. Within those trends, identify micro_reason similarities
-  4. Include trends that match BOTH macro and micro conditions
-  5. Output precise matches, not exhaustive lists
+- **CONCISE MAPPING STRATEGY:**
+  1. Identify specific macro themes (Fed rates, tariffs, earnings)
+  2. Find matching trends with concrete macro_reason facts  
+  3. Match specific micro_reason parallels (management, products, deals)
+  4. **CLASSIFY each reason as EXPECTATION or DELIVERY**
+  5. **EXPLAIN why expectation vs delivery caused the price movement**
+  6. Output precise matches with CONCRETE bullet facts
 
 Always call the appropriate function first to get precise data, then provide analysis based on the function results."""
             
@@ -659,15 +680,29 @@ AVAILABLE DATA:
 - **MUST use EXACT FORMAT with detailed price distribution:**
   ```
   <Similar Trend Time: [trend_name] [start_date, end_date]>
-  <Reason: because similar macro as [macro_reason], micro as [micro_reason]>
+  <Reason: because similar macro as [macro_reason] ([EXPECTATION/DELIVERY]), micro as [micro_reason] ([EXPECTATION/DELIVERY])>
+  <Impact Analysis: [EXPECTATION/DELIVERY] of [event] caused [price_movement] because [explanation]>
   <Similar Trend Price: start: [start_date], end: [end_date], day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, return_variance: [X.XXXXXX], volatility: [X.XX%]>
   ```
 - **INCLUDE ALL PRICE DISTRIBUTION VARIABLES from database:**
   - start, end, day_avg_return, slope, max_return, estimate_price, duration, return_variance, volatility
   - **USE EXACT macro_reason and micro_reason from database summary field**
+  - **ALWAYS CLASSIFY as EXPECTATION or DELIVERY and explain the impact**
   - Do NOT make up or approximate values
 - **ONLY OUTPUT THIS FORMAT - NO OTHER SECTIONS**
 - **FOCUS ON HISTORICAL MAPPING:** Your role is to map user queries to RELEVANT HISTORICAL TRENDS and output the original data
+
+**CRITICAL EXPECTATION vs DELIVERY ANALYSIS:**
+- **EXPECTATION PHASE**: When news/events are anticipated but not yet delivered
+  - Good news expectation → Stock price typically RISES (positive sentiment)
+  - Bad news expectation → Stock price typically FALLS (negative sentiment)
+- **DELIVERY PHASE**: When news/events are actually delivered/announced
+  - Good news delivery that meets/exceeds expectations → Stock price RISES
+  - Good news delivery that disappoints → Stock price FALLS (sell the news)
+  - Bad news delivery that's worse than expected → Stock price FALLS
+  - Bad news delivery that's better than expected → Stock price RISES (relief rally)
+- **ALWAYS IDENTIFY**: Whether the macro/micro reason represents EXPECTATION or DELIVERY
+- **EXPLAIN THE IMPACT**: Why expectation vs delivery caused the specific price movement
 
 **REMEMBER: Current trends are context only. Historical trends are your answers.**
 """
@@ -677,16 +712,16 @@ AVAILABLE DATA:
                 from shared_clients import shared_clients
                 analysis_response = await shared_clients.call_deepseek(
                     prompt=analysis_prompt,
-                    system_message="You are a HISTORICAL TREND MAPPING specialist. Your ONLY job is to find RELEVANT HISTORICAL TRENDS from the database that match the user's query based on macro + micro conditions. IGNORE CURRENT TRENDS - they are only context, not answers. Structure your response in EXACTLY ONE section: SIMILAR TREND MAPPING. MAPPING RULE: Find HISTORICAL trends with similar macro + micro conditions. Analyze user query for macro/micro context, search database for HISTORICAL trends with matching macro_reason + micro_reason patterns, map multiple HISTORICAL trends if they have similar macro/micro conditions, focus on PRECISION not quantity, match either uptrend or downtrend based on query context. Use format <Similar Trend Time: [trend] [dates]>, <Reason: because similar macro as [reason], micro as [reason]>, <Similar Trend Price: start: [start_date], end: [end_date], day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, return_variance: [X.XXXXXX], volatility: [X.XX%]>. Focus on precise HISTORICAL mapping based on macro + micro condition similarity.",
-                    max_tokens=1000,
+                    system_message="You are a HISTORICAL TREND MAPPING specialist with CONCISE bullet points. Your PRIMARY job is to find RELEVANT HISTORICAL TRENDS that match user queries based on SPECIFIC macro + micro conditions. IGNORE CURRENT TRENDS - they are context only. Structure response in EXACTLY ONE section: SIMILAR TREND MAPPING. Use CONCISE format: <Similar Trend Time: [trend] [dates] ([duration] days)>, <Reason: similar macro as [concrete_macro_reason] ([EXPECTATION/DELIVERY]), micro as [concrete_micro_reason] ([EXPECTATION/DELIVERY])>, <Impact Analysis: [EXPECTATION/DELIVERY] of [event] caused [price_movement] because [explanation]>, <Similar Trend Price: day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, volatility: [X.XX%]>. CRITICAL: ALWAYS classify macro/micro reasons as EXPECTATION or DELIVERY and explain why this caused the price movement. Keep bullet points SHORT but CONCRETE with specific facts: names, dates, amounts, percentages. No vague terms.",
+                    max_tokens=1500,
                     temperature=0.3
                 )
             except Exception as e:
                 # Fallback to direct LLM call if shared clients fail
                 analysis_response = self.llm_agent.call_llm(
                     prompt=analysis_prompt,
-                    system_message="You are a HISTORICAL TREND MAPPING specialist. Your ONLY job is to find RELEVANT HISTORICAL TRENDS from the database that match the user's query based on macro + micro conditions. IGNORE CURRENT TRENDS - they are only context, not answers. Structure your response in EXACTLY ONE section: SIMILAR TREND MAPPING. MAPPING RULE: Find HISTORICAL trends with similar macro + micro conditions. Analyze user query for macro/micro context, search database for HISTORICAL trends with matching macro_reason + micro_reason patterns, map multiple HISTORICAL trends if they have similar macro/micro conditions, focus on PRECISION not quantity, match either uptrend or downtrend based on query context. Use format <Similar Trend Time: [trend] [dates]>, <Reason: because similar macro as [reason], micro as [reason]>, <Similar Trend Price: start: [start_date], end: [end_date], day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, return_variance: [X.XXXXXX], volatility: [X.XX%]>. Focus on precise HISTORICAL mapping based on macro + micro condition similarity.",
-                    max_tokens=1000,
+                    system_message="You are a HISTORICAL TREND MAPPING specialist with CONCISE bullet points. Your PRIMARY job is to find RELEVANT HISTORICAL TRENDS that match user queries based on SPECIFIC macro + micro conditions. IGNORE CURRENT TRENDS - they are context only. Structure response in EXACTLY ONE section: SIMILAR TREND MAPPING. Use CONCISE format: <Similar Trend Time: [trend] [dates] ([duration] days)>, <Reason: similar macro as [concrete_macro_reason] ([EXPECTATION/DELIVERY]), micro as [concrete_micro_reason] ([EXPECTATION/DELIVERY])>, <Impact Analysis: [EXPECTATION/DELIVERY] of [event] caused [price_movement] because [explanation]>, <Similar Trend Price: day_avg_return: [X.XXX%], slope: [X.XX], max_return: [X.XX%], estimate_price: $[X.XX], duration: [X.X] days, volatility: [X.XX%]>. CRITICAL: ALWAYS classify macro/micro reasons as EXPECTATION or DELIVERY and explain why this caused the price movement. Keep bullet points SHORT but CONCRETE with specific facts: names, dates, amounts, percentages. No vague terms.",
+                    max_tokens=1500,
                     temperature=0.3
                 )
             

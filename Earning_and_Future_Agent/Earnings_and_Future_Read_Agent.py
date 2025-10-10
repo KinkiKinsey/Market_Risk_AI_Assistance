@@ -31,8 +31,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('earnings_and_future_analyst.log')
+        logging.StreamHandler(sys.stdout)  # Output to console only, no files
     ]
 )
 

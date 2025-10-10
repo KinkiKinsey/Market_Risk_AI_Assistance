@@ -9,7 +9,9 @@ class ChainOfThoughtResult(BaseModel):
     initial_query: str = Field(description="The original user question")
     ticker: str = Field(description="Stock ticker symbol")
     impact_chain: str = Field(description="Linear chain: A → B → C → D → Final")
-    final_direction: str = Field(description="Final impact: 'Short' or 'Long'")
+    impact_dimension: str = Field(description="The specific business dimension affected (e.g., 'Supply Chain', 'Competitive Landscape', 'Market Demand', 'Regulatory Environment', 'Financial Health', 'Technology Innovation')")
+    impact_direction: str = Field(description="Direction of impact: 'Positive' or 'Negative'")
+    final_direction: str = Field(description="Combined dimension + direction (e.g., 'Supply Chain Negative', 'Market Demand Positive')")
     chain_explanation: str = Field(description="Brief explanation of the chain logic")
     node_count: int = Field(description="Number of nodes in the chain")
     edge_count: int = Field(description="Number of edges/connections in the chain")
@@ -396,11 +398,26 @@ class ChainOfThoughtAgent:
         - **Market Evidence**: Use current market data to support logical connections, not as historical precedent
         - **Fact-Based Support**: Use concrete current and historical data to support every logical connection
 
-        DECISION RULES:
-        - **LONG TERM UP**: Business strategy, future plans, structural improvements
-        - **SHORT TERM DOWN**: Market sentiment, temporary headwinds, short-term challenges  
-        - **LONG TERM DOWN**: Fundamental business model issues, competitive threats
-        - **SHORT TERM UP**: Temporary positive catalysts, immediate market reactions
+        IMPACT DIMENSION CLASSIFICATION:
+        Choose the PRIMARY business dimension affected by the chain, then determine if impact is Positive or Negative:
+        
+        **Available Dimensions:**
+        - **Supply Chain**: Logistics, sourcing, production capacity, supplier relationships
+        - **Competitive Landscape**: Market share, competitor actions, pricing power, competitive advantages
+        - **Market Demand**: Customer demand, market trends, adoption rates, consumer sentiment
+        - **Regulatory Environment**: Government policies, compliance, legal issues, trade restrictions
+        - **Financial Health**: Revenue, profitability, cash flow, debt levels, capital allocation
+        - **Technology Innovation**: R&D, product development, technological advantages, digital transformation
+        - **Operational Efficiency**: Cost structure, margins, productivity, process improvements
+        - **Customer Relationships**: Customer retention, satisfaction, concentration risk, channel partnerships
+        - **Macroeconomic Factors**: Interest rates, inflation, economic cycles, currency effects
+        - **Brand & Reputation**: Brand value, public perception, ESG factors, corporate governance
+        
+        **Impact Direction:**
+        - **Positive**: Improvements, opportunities, strengths, favorable developments
+        - **Negative**: Challenges, risks, weaknesses, unfavorable developments
+        
+        **Final Format**: "{Dimension} {Direction}" (e.g., "Supply Chain Negative", "Market Demand Positive")
 
         EXAMPLE CHAINS (PROPER DATA USAGE):
         

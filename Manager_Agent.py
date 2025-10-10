@@ -473,7 +473,7 @@ class ManagerAgent:
                     a.redis_client.close()
 
         async def run_financial(q):
-            from Financial_Metrics_Analyst_Agent import FinancialMetricsAnalystAgent
+            from Financial_Metrics_Agent.Financial_Metrics_Analyst_Agent import FinancialMetricsAnalystAgent
             import time
             if shared_clients:
                 a = FinancialMetricsAnalystAgent(
@@ -507,14 +507,14 @@ class ManagerAgent:
                 await a.close()
 
         async def run_earnings(q):
-            from Earnings_and_Future_Agent import EarningsAndFutureAgent
+            from Earning_and_Future_Agent.Earnings_and_Future_Read_Agent import EarningsAndFutureReadAgent
             if shared_clients:
-                a = EarningsAndFutureAgent(
+                a = EarningsAndFutureReadAgent(
                     shared_clients=shared_clients,
                     user_id="default_user"
                 )
             else:
-                a = EarningsAndFutureAgent(
+                a = EarningsAndFutureReadAgent(
                     redis_host=REDIS_CONFIG['host'],
                     redis_port=REDIS_CONFIG['port'],
                     redis_password=REDIS_CONFIG['password'],

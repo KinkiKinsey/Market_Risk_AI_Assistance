@@ -29,8 +29,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('earnings_and_future_db_agent.log')
+        logging.StreamHandler(sys.stdout)  # Output to console only, no files
     ]
 )
 
@@ -495,8 +494,7 @@ def setup_logging(level: str = "INFO"):
         level=getattr(logging, level.upper()),
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('earnings_and_future_db_agent.log')
+            logging.StreamHandler(sys.stdout)  # Output to console only, no files
         ]
     )
 

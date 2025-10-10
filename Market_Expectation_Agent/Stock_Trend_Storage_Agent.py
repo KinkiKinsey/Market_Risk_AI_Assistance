@@ -283,7 +283,7 @@ def validate_json_structure(parsed_json: dict, expected_keys: list) -> dict:
 
 def create_improved_llm_prompt(ticker: str, batch_keys: list, trend_json: dict) -> str:
     """
-    Create an improved LLM prompt that is more likely to generate valid JSON.
+    Create an improved LLM prompt that extracts ONLY factual events - NO analyst opinions.
     
     Args:
         ticker (str): Stock ticker
@@ -295,30 +295,93 @@ def create_improved_llm_prompt(ticker: str, batch_keys: list, trend_json: dict) 
     """
     prompt = f"""You are a financial analyst analyzing news impact on {ticker} stock price movements.
 
-CRITICAL INSTRUCTIONS:
-1. Respond with ONLY valid JSON format
-2. Use double quotes for all keys and string values
-3. No text before or after the JSON object
-4. No markdown formatting or code blocks
-5. Ensure all JSON syntax is correct
+**HIERARCHICAL DRIVER DETECTION (Priority Order):**
 
-Analyze the following news data and provide macro and micro reasons for each trend.
-Filter out noise: if news is not related to the company's sector, fundamentals, or industry, consider it noise.
+**LEVEL 1 - EARNINGS:** Financial results and performance metrics
+- Revenue, profit, EPS, margins, cash flow
+- **HIGHEST PRIORITY** - Earnings always drive stock price
 
-Provide detailed analysis using numbers, events, figures, and impact. Example: "Economic growth of 3% in Q2, 5% increase in {ticker} due to higher demand in semiconductors."
+**LEVEL 2 - GUIDANCE:** Forward-looking company outlook
+- Future revenue/profit guidance, business outlook, strategic direction
+- **SECOND PRIORITY** - Guidance often more important than past earnings
+
+**LEVEL 3 - BUSINESS LINE:** Company operations and products
+- Product launches, business expansion, partnerships, acquisitions
+- **THIRD PRIORITY** - Operational developments
+
+**LEVEL 4 - CEO/MANAGEMENT:** Leadership and management structure changes
+- CEO appointments/departures, executive changes, leadership decisions
+- **FOURTH PRIORITY** - Leadership actions that drive company direction
+
+**LEVEL 5 - SUPPLY CHAIN:** Upstream/downstream business relationships
+- Supplier/customer changes, supply chain disruptions, partnership deals
+- **FIFTH PRIORITY** - Key business relationship impacts
+
+**LEVEL 6 - FED MONETARY POLICY:** Central bank ACTIONS (not concerns)
+- Interest rate changes ANNOUNCED/DECIDED, QE implementations, policy DECISIONS
+- **SIXTH PRIORITY** - Market-wide monetary impact
+- **FILTER NOISE**: Ignore "concerns", "pressure", "disagreement" - ONLY actual decisions/announcements
+
+**LEVEL 7 - POLITICAL REGULATION:** Government ACTIONS (not concerns)
+- Regulatory changes IMPLEMENTED, trade policies ENACTED, tax policies PASSED
+- **SEVENTH PRIORITY** - Policy impact on markets
+- **FILTER NOISE**: Ignore "concerns", "debates", "discussions" - ONLY actual enacted policies
+
+**LEVEL 8 - GEOPOLITICAL:** Major global EVENTS (not concerns)
+- Actual international actions, trade agreements SIGNED, major economic events OCCURRED
+- **EIGHTH PRIORITY** - Broader global factors
+- **FILTER NOISE**: Ignore "tensions", "worries", "concerns" - ONLY actual events
+
+**CRITICAL NOISE FILTERING RULES:**
+🚫 **IGNORE THESE NOISE PATTERNS:**
+- "concern about...", "pressure over...", "disagreement on...", "debate about..."
+- "facing criticism", "under scrutiny", "market worry", "investor fear"
+- "potential", "might", "could", "may" (unless it's official guidance)
+- Analyst opinions, market sentiment, speculation, predictions
+
+✅ **ONLY USE REAL ACTIONS:**
+- "announced", "decided", "implemented", "launched", "reported", "delivered"
+- "signed", "enacted", "passed", "approved", "completed", "achieved"
+- Official company statements, government decisions, actual business events
+- **Example**: "Trump announced tariffs" ✅ vs "Market concerned about tariffs" ❌
+- **Example**: "Fed cut rates by 50bps" ✅ vs "Fed facing pressure to cut rates" ❌
+- **Example**: "CEO appointed" ✅ vs "Leadership disagreement reported" ❌
+
+**SMART SELECTION RULES:**
+- **PRIORITY HIERARCHY**: Always check Level 1 first, then Level 2, etc.
+- **FOCUS ON FED POLICY + EARNINGS/GUIDANCE**: Primary emphasis on Levels 1, 2, 6
+- **CEO/SUPPLY CHAIN IF NECESSARY**: Only use if no higher priority driver exists
+- **ONE DRIVER ONLY**: Choose the highest priority level that applies
+- **EMPTY THE OTHER**: If macro is primary, leave micro empty. If micro is primary, leave macro empty.
+- **REAL ACTIONS ONLY**: Filter out all noise - focus on actual decisions and events
+
+**FORMAT:**
+- Use ONE bullet point: (Factor): Brief description [EXPECTATION/DELIVERY] [LESS_THAN_EXPECTATION/BETTER_THAN_EXPECTATION/N/A]
+- Leave the other driver empty ("")
+- Focus on concrete events that actually moved the market
+
+**EXAMPLES (Priority-Based with Noise Filtering):**
+- **Level 1 (Earnings)**: micro_reason = "• (Financial Metrics): Revenue beat expectations [DELIVERY] [BETTER_THAN_EXPECTATION]", macro_reason = ""
+- **Level 2 (Guidance)**: micro_reason = "• (Business Outlook): Guidance raised for next quarter [DELIVERY] [BETTER_THAN_EXPECTATION]", macro_reason = ""
+- **Level 3 (Business Line)**: micro_reason = "• (Product Development): New product launched [DELIVERY] [N/A]", macro_reason = ""
+- **Level 4 (CEO/Management)**: micro_reason = "• (Leadership): New CEO appointed [DELIVERY] [N/A]", macro_reason = ""
+- **Level 5 (Supply Chain)**: micro_reason = "• (Business Partnerships): Major supplier agreement signed [DELIVERY] [N/A]", macro_reason = ""
+- **Level 6 (Fed Policy - ACTION)**: macro_reason = "• (Monetary Policy): Fed cut rates by 50bps [DELIVERY] [N/A]", micro_reason = ""
+- **Level 6 (Fed Policy - NOISE ❌)**: IGNORE "Fed facing pressure to cut rates" - this is noise, not an action
+- **Level 7 (Political - ACTION)**: macro_reason = "• (Trade Policy): Trump signed 25% tariff on imports [DELIVERY] [N/A]", micro_reason = ""
+- **Level 7 (Political - NOISE ❌)**: IGNORE "Market concerned about potential tariffs" - this is noise, not enacted policy
+- **Level 8 (Geopolitical - ACTION)**: macro_reason = "• (International Trade): China-US trade agreement signed [DELIVERY] [N/A]", micro_reason = ""
+- **Level 8 (Geopolitical - NOISE ❌)**: IGNORE "Tensions rising between nations" - this is noise, not an actual event
 
 Return JSON with this EXACT structure for each trend key:
 {{
   "trend_key": {{
-    "macro_reason": "detailed macro economic/political/industry reason",
-    "micro_reason": "detailed company-specific fundamental reason"
+    "macro_reason": "Single bullet point OR empty string if micro is primary",
+    "micro_reason": "Single bullet point OR empty string if macro is primary"
   }}
 }}
 
 Trend keys to analyze: {batch_keys}
-
-Macro reasons: economic, political, industry-wide factors
-Micro reasons: company-specific fundamentals, earnings, management
 
 News data to analyze:
 """
@@ -328,15 +391,46 @@ News data to analyze:
         news_block = "\n".join([f"Title: {item['title']}\nText: {item['text']}" for item in data["news"]])
         prompt += f"\n[{key}] ({data['time']['start']} to {data['time']['end']}):\n{news_block}\n"
     
+    # Build dynamic example format based on batch size
+    example_entries = []
+    for i, key in enumerate(batch_keys):
+        if i == 0:
+            # First example: macro reason
+            example_entries.append(f'''  "{key}": {{
+    "macro_reason": "• (Monetary Policy): Fed cut rates by 50bps [DELIVERY] [N/A]",
+    "micro_reason": ""
+  }}''')
+        elif i == 1:
+            # Second example: micro reason
+            example_entries.append(f'''  "{key}": {{
+    "macro_reason": "",
+    "micro_reason": "• (Financial Metrics): Revenue beat expectations [DELIVERY] [BETTER_THAN_EXPECTATION]"
+  }}''')
+        else:
+            # Additional examples: alternate
+            if i % 2 == 0:
+                example_entries.append(f'''  "{key}": {{
+    "macro_reason": "• (Trade Policy): Tariffs announced [DELIVERY] [N/A]",
+    "micro_reason": ""
+  }}''')
+            else:
+                example_entries.append(f'''  "{key}": {{
+    "macro_reason": "",
+    "micro_reason": "• (Business Outlook): Guidance raised [DELIVERY] [BETTER_THAN_EXPECTATION]"
+  }}''')
+    
+    example_json = "{\n" + ",\n".join(example_entries) + "\n}"
+    
     prompt += f"""
 
 IMPORTANT: Respond with ONLY the JSON object. Example format:
-{{
-  "{batch_keys[0]}": {{
-    "macro_reason": "Economic growth of 3% in Q2 drove market optimism",
-    "micro_reason": "Strong earnings report showing 15% revenue increase"
-  }}
-}}
+{example_json}
+
+REMEMBER:
+- Filter out noise like "concerns", "pressure", "debates", "tensions"
+- Only use REAL ACTIONS: "announced", "decided", "implemented", "signed", "launched"
+- Check priority hierarchy: Earnings > Guidance > Business Line > CEO > Supply Chain > Fed > Political > Geopolitical
+- ONE DRIVER ONLY per trend
 
 No additional text, no explanations, just the JSON."""
     
@@ -392,7 +486,7 @@ def get_price_series(ticker: str, start_date: str, end_date: str) -> pd.DataFram
         print(f"⚠️ Error downloading data for {ticker}: {str(e)}")
         return pd.DataFrame()
 
-def get_n_price_analyst(price_df: pd.DataFrame, interval_start: str, interval_end: str, N: int = 1, diff_only: bool = False):
+def get_n_price_analyst(price_df: pd.DataFrame, interval_start: str, interval_end: str, N: int = 5, diff_only: bool = False):
     """Analyze a slice of the price_df between interval_start and interval_end."""
     # Convert to Timestamp for easy manipulation
     start = pd.to_datetime(interval_start)
@@ -419,7 +513,10 @@ def get_n_price_analyst(price_df: pd.DataFrame, interval_start: str, interval_en
     if diff_only:
         result = prices.diff(periods=N)
     else:
-        result = (prices.shift(-N) - prices) / prices
+        # ALWAYS calculate daily returns regardless of interval length
+        daily_returns = prices.pct_change().dropna()
+        result = daily_returns
+        print(f"📊 Always using daily returns ({len(prices)} days): {daily_returns.tolist()}")
 
     # Variance of return rate (or diff)
     variance = float(result.var()) if len(result.dropna()) > 1 else 0
@@ -916,9 +1013,82 @@ async def summarize_news_trends_with_llm(trend_json: dict, ticker: str, use_mult
         
         return clean_output
 
-def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json: dict, N: int = 1) -> dict:
+def get_spy_return_rate(start_date: str, end_date: str, N: int = 5) -> float:
+    """Get SPY daily average return using the EXACT same calculation as stock daily average return."""
+    try:
+        # Download SPY data for the same period
+        spy_data = get_price_series("SPY", start_date, end_date)
+        
+        if spy_data.empty or len(spy_data) < 2:
+            print(f"⚠️ Insufficient SPY data for period {start_date} to {end_date}")
+            return None
+        
+        # Use the EXACT same calculation as get_n_price_analyst() for daily returns
+        spy_prices = spy_data['Price']
+        
+        # ALWAYS calculate daily returns regardless of interval length (same as stock)
+        spy_daily_returns = spy_prices.pct_change().dropna()
+        
+        if spy_daily_returns.empty:
+            print(f"⚠️ No SPY daily returns calculated for period {start_date} to {end_date}")
+            return None
+        
+        # Calculate average daily return (same as stock)
+        spy_daily_avg_return = round(float(spy_daily_returns.mean()), 5)
+        
+        print(f"📊 SPY daily returns: {spy_daily_returns.tolist()}")
+        print(f"📊 SPY average daily return: {spy_daily_avg_return}")
+        
+        return spy_daily_avg_return
+        
+    except Exception as e:
+        print(f"❌ Error calculating SPY return rate: {e}")
+        return None
+
+def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json: dict, N: int = 5) -> dict:
     """Enhance summary_json with return list, average return, last price, volatility, and consensus price."""
     enhanced_json = {}
+    
+    # Safety check: ensure summary_json is not empty
+    if not summary_json:
+        print("⚠️ get_new_price_distribution: summary_json is empty, returning empty dict")
+        return {}
+
+    # STEP 1: Fetch SPY data ONCE for the entire analysis period (same as stock)
+    # Get the overall date range from the first and last trend
+    all_dates = []
+    for key, data in summary_json.items():
+        all_dates.append(data['time']['start'])
+        all_dates.append(data['time']['end'])
+    
+    if all_dates:
+        analysis_start = min(all_dates)
+        analysis_end = max(all_dates)
+        print(f"📊 Fetching SPY data for entire analysis period: {analysis_start} to {analysis_end}")
+        
+        # Fetch SPY data ONCE with same fallback logic as stock
+        spy_price_df = None
+        periods_to_try = [365, 182, 90]  # Same fallback periods as stock
+        
+        for days in periods_to_try:
+            test_start = (datetime.strptime(analysis_start, "%Y-%m-%d") - timedelta(days=days)).strftime("%Y-%m-%d")
+            test_end = (datetime.strptime(analysis_end, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
+            
+            print(f"🔄 Trying SPY data for {days} days period: {test_start} to {test_end}")
+            test_spy_data = get_price_series("SPY", test_start, test_end)
+            
+            if not test_spy_data.empty and len(test_spy_data) >= 10:
+                spy_price_df = test_spy_data
+                print(f"✅ Found SPY data for {days} days period ({len(test_spy_data)} data points)")
+                break
+            else:
+                print(f"⚠️ Insufficient SPY data for {days} days period")
+        
+        if spy_price_df is None:
+            print("❌ No sufficient SPY data available - will use None for all SPY_return_rate")
+    else:
+        spy_price_df = None
+        print("❌ No date ranges found for SPY data fetching")
 
     for key, data in summary_json.items():
         start_date = data['time']['start']
@@ -926,22 +1096,41 @@ def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json
 
         try:
             # Step 1: Use user-defined return function
-            return_list, return_variance, estimate_close_price, time_interval, slope, max_return = get_n_price_analyst(price_df, start_date, end_date, N=1)
+            return_list, return_variance, estimate_close_price, time_interval, slope, max_return = get_n_price_analyst(price_df, start_date, end_date, N=5)
             interval_days = (datetime.strptime(end_date, "%Y-%m-%d") - datetime.strptime(start_date, "%Y-%m-%d")).days
 
             # Step 2: Compute stats from return list
-            daily_avg_return = round(sum(return_list) / len(return_list), 5) if return_list else None
-            print(f"Daily average return for {key}: {return_list}")
+            # get_n_price_analyst() ALWAYS returns daily returns regardless of interval length
+            if return_list:
+                # Always calculate average of daily returns
+                daily_avg_return = round(sum(return_list) / len(return_list), 5)
+                print(f"Daily returns for {key} ({interval_days} days): {return_list}")
+                print(f"Average daily return: {daily_avg_return}")
+            else:
+                daily_avg_return = None
+                print(f"No returns calculated for {key}")
     
             week_avg_return = round(sum(return_list[-7:]) / 7, 5) if return_list and len(return_list) >= 7 else None
             month_avg_return = round(sum(return_list[-30:]) / 30, 5) if return_list and len(return_list) >= 30 else None
 
             volatility = round(pd.Series(return_list).std(), 5) if return_list else None
 
-            # Step 3: Get consensus price
+
+            # Step 3: Get SPY daily returns using SAME METHOD as stock
+            if spy_price_df is not None:
+                # Use the SAME get_n_price_analyst function with the pre-fetched SPY data
+                spy_return_list, _, _, _, _, _ = get_n_price_analyst(spy_price_df, start_date, end_date, N=5)
+                spy_daily_avg_return = round(sum(spy_return_list) / len(spy_return_list), 5) if spy_return_list else None
+                print(f"SPY daily returns for {key} ({start_date} to {end_date}): {spy_return_list}")
+                print(f"SPY average daily return: {spy_daily_avg_return}")
+            else:
+                spy_daily_avg_return = None
+                print(f"❌ No SPY data available for {key}")
+
+            # Step 4: Get consensus price
             end_plus = (datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=2)).strftime("%Y-%m-%d")
 
-            # Step 4: Store result
+            # Step 5: Store result
             enhanced_json[key] = {
                 **data,
                 "day average_return": daily_avg_return,
@@ -952,6 +1141,7 @@ def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json
                 "Slope of stock trend": round(float(slope), 2),
                 "Max Return": round(float(max_return), 2),
                 "Estimate_price": estimate_close_price,
+                "SPY_return_rate": spy_daily_avg_return,
                 "current": f"{start_date} to {end_date}"
             }
 
@@ -966,6 +1156,7 @@ def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json
                 "How Long it Take": None,
                 "Slope of stock trend": None,
                 "Max Return": None,
+                "SPY_return_rate": None,
                 "Estimate_price": None,
                 "current": f"{start_date} to {end_date}"
             }
@@ -979,19 +1170,27 @@ def get_new_price_distribution(price_df: pd.DataFrame, ticker: str, summary_json
 def split_historical_and_current(final_json: dict) -> tuple:
     """Split the final_json into historical_json and current_json."""
     if not final_json:
+        print("⚠️ split_historical_and_current: final_json is empty")
         return {}, {}
-
+    
     keys = list(final_json.keys())
-    if not keys:
+    if not keys or len(keys) < 1:
+        print("⚠️ split_historical_and_current: keys list is empty")
         return {}, {}
-
+    
     # Assume key order reflects time order (as produced by your pipeline)
-    historical_keys = keys[:-1]
-    current_key = keys[-1]
-
-    historical_json = {k: final_json[k] for k in historical_keys}
-    current_json = {current_key: final_json[current_key]}
-
+    if len(keys) == 1:
+        # Only one key - treat it as current
+        current_key = keys[0]
+        historical_json = {}
+        current_json = {current_key: final_json[current_key]}
+    else:
+        # Multiple keys - split into historical and current
+        historical_keys = keys[:-1]
+        current_key = keys[-1]
+        historical_json = {k: final_json[k] for k in historical_keys}
+        current_json = {current_key: final_json[current_key]}
+    
     return historical_json, current_json
 
 def create_metadata(ticker, update_date):
@@ -1270,7 +1469,11 @@ async def analyze_stock_trends(ticker: str, force_update: bool = False, use_mult
         return historical_json, current_json, metadata
         
     except Exception as e:
+        import traceback
         print(f"❌ Error during analysis: {str(e)}")
+        print(f"❌ Error type: {type(e).__name__}")
+        print(f"❌ Full traceback:")
+        traceback.print_exc()
         raise
 
 if __name__ == "__main__":
