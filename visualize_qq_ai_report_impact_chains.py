@@ -10,7 +10,9 @@ import pandas as pd
 
 def visualize_qq_ai_report(
     ticker: str,
-    impact_chains: List[Dict[str, Any]],  # NEW: Impact chains from analyst graph
+    impact_chains: List[Dict[str, Any]],  # Impact chains from analyst graph
+    dates: Optional[List[str]] = None,  # ✅ NEW: List of dates for each news item
+    links: Optional[List[str]] = None,  # ✅ NEW: List of URLs for each news item
     # Treemap parameters (unchanged)
     macro_df: Optional[pd.DataFrame] = None,
     micro_df: Optional[pd.DataFrame] = None,
@@ -25,6 +27,8 @@ def visualize_qq_ai_report(
     Args:
         ticker: Stock ticker symbol
         impact_chains: List of impact chain dicts from analyze_news_impact()
+        dates: List of date strings for each news item (optional)
+        links: List of URL strings for each news item (optional)
         macro_df: Macro factors dataframe for treemap
         micro_df: Micro factors dataframe for treemap
         risk_reward_data: Risk/reward analysis data
@@ -38,9 +42,12 @@ def visualize_qq_ai_report(
         - impact_chain: str
         - affected_metric: str
         - direction: "Increase" | "Decrease" | "Neutral"
+        - sentiment: "Positive" | "Negative" | "Neutral"
         - confidence: float (0-1)
         - expectation_reasoning: str
         - think_count: int
+    
+    If dates/links are provided, they will be aligned with impact_chains by index.
     """
     
     print("✅ Generating Q&Q.AI Report with Impact Chains...")
@@ -96,7 +103,7 @@ def visualize_qq_ai_report(
     table_rows_html = ""
     news_data_json = []  # Store full news for modal
     
-    for chain in impact_chains:
+    for i, chain in enumerate(impact_chains):
         # Get sentiment-based color (GREEN = Positive, RED = Negative, GRAY = Neutral)
         sentiment = chain.get('sentiment', 'Neutral')
         if sentiment == 'Positive':
@@ -121,8 +128,17 @@ def visualize_qq_ai_report(
         affected_metric = chain.get('affected_metric', 'Unknown')
         reasoning = chain.get('expectation_reasoning', 'No reasoning provided')
         news_index = chain.get('news_index', 0)
-        news_date = chain.get('date', 'N/A')
-        news_link = chain.get('link', '#')
+        
+        # ✅ Use provided dates/links if available, otherwise fall back to chain data
+        if dates and i < len(dates):
+            news_date = dates[i]
+        else:
+            news_date = chain.get('date', 'N/A')
+        
+        if links and i < len(links):
+            news_link = links[i]
+        else:
+            news_link = chain.get('link', '#')
         
         # Store full news for modal with date and link
         news_data_json.append({
