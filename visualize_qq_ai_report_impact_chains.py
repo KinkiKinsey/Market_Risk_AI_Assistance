@@ -115,10 +115,6 @@ def visualize_qq_ai_report(
         else:
             direction_icon = "→"
         
-        # Get confidence
-        confidence = chain.get('confidence', 0.0)
-        confidence_percent = int(confidence * 100)
-        
         # Get data
         news_full = chain.get('news_snippet', 'No news')
         news_short = news_full[:80] + "..." if len(news_full) > 80 else news_full
@@ -136,10 +132,7 @@ def visualize_qq_ai_report(
             <tr class="table-row" onclick="showNewsModal({news_index})">
                 <td class="table-cell news-cell">{news_short}</td>
                 <td class="table-cell impact-cell {sentiment_class}">
-                    <div class="impact-content-wrapper">
-                        <span class="impact-value">{affected_metric} {direction_icon}</span>
-                        <span class="confidence-badge">{confidence_percent}%</span>
-                    </div>
+                    <span class="impact-value">{affected_metric} {direction_icon}</span>
                 </td>
                 <td class="table-cell reasoning-cell">{reasoning}</td>
             </tr>
@@ -559,7 +552,6 @@ def visualize_qq_ai_report(
             width: 20%;
             text-align: center;
             font-weight: 600;
-            padding: 8px 12px;
         }}
 
         /* Sentiment-based colors (GREEN = Positive, RED = Negative) */
@@ -576,39 +568,6 @@ def visualize_qq_ai_report(
         .impact-cell.sentiment-neutral {{
             background: #f9fafb;
             color: #6b7280;
-        }}
-
-        .impact-content-wrapper {{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }}
-
-        .confidence-badge {{
-            display: inline-block;
-            background: rgba(0, 0, 0, 0.1);
-            color: rgba(0, 0, 0, 0.6);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 10px;
-            letter-spacing: 0.3px;
-        }}
-
-        .sentiment-positive .confidence-badge {{
-            background: rgba(22, 163, 74, 0.15);
-            color: #15803d;
-        }}
-
-        .sentiment-negative .confidence-badge {{
-            background: rgba(220, 38, 38, 0.15);
-            color: #b91c1c;
-        }}
-
-        .sentiment-neutral .confidence-badge {{
-            background: rgba(107, 114, 128, 0.15);
-            color: #4b5563;
         }}
 
         .reasoning-cell {{
