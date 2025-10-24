@@ -102,6 +102,7 @@ def visualize_qq_ai_report(
     # Generate Excel-style table rows HTML
     table_rows_html = ""
     news_data_json = []  # Store full news for modal
+    csv_data = []  # Store data for CSV download
     
     for i, chain in enumerate(impact_chains):
         # Get sentiment-based color (GREEN = Positive, RED = Negative, GRAY = Neutral)
@@ -148,6 +149,20 @@ def visualize_qq_ai_report(
             'link': news_link
         })
         
+        # Store data for CSV download
+        csv_data.append({
+            'date': news_date,
+            'news': news_full,
+            'financial_impact': f"{affected_metric} {direction_icon}",
+            'reasoning': reasoning,
+            'sentiment': sentiment,
+            'confidence': chain.get('confidence', 0.0),
+            'positive': 1 if sentiment == 'Positive' else 0,
+            'negative': 1 if sentiment == 'Negative' else 0,
+            'neutral': 1 if sentiment == 'Neutral' else 0,
+            'url': news_link
+        })
+        
         table_rows_html += f"""
             <tr class="table-row" onclick="showNewsModal({news_index})">
                 <td class="table-cell news-cell">
@@ -162,6 +177,7 @@ def visualize_qq_ai_report(
         """
     
     news_data_json_str = json.dumps(news_data_json)
+    csv_data_json_str = json.dumps(csv_data)
     
     # Prepare treemap data (unchanged from original)
     has_treemap = macro_df is not None and micro_df is not None
@@ -599,6 +615,31 @@ def visualize_qq_ai_report(
             line-height: 1.5;
         }}
 
+        /* Download Button Styles */
+        .download-btn {{
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }}
+
+        .download-btn:hover {{
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+        }}
+
+        .download-btn:active {{
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }}
+
         .impact-value {{
             display: inline-flex;
             align-items: center;
@@ -1025,6 +1066,13 @@ def visualize_qq_ai_report(
         <div class="section">
             {impact_chains_title_html}
             
+            <!-- Download Button -->
+            <div style="margin-bottom: 20px; text-align: right;">
+                <button onclick="downloadCSV()" class="download-btn">
+                    📥 Download CSV
+                </button>
+            </div>
+            
             <!-- Excel-style Table -->
             <div class="excel-table-container">
                 <table class="excel-table">
@@ -1101,6 +1149,7 @@ def visualize_qq_ai_report(
         const texts = {texts_json};
         const factorTimeData = {factor_time_json};
         const newsData = {news_data_json_str};
+        const csvData = {csv_data_json_str};
         
         let currentData = macroData;
         
@@ -1142,6 +1191,43 @@ def visualize_qq_ai_report(
 
         function closeNewsModal() {{
             document.getElementById('newsModal').classList.remove('active');
+        }}
+
+        // CSV Download Function
+        function downloadCSV() {{
+            if (!csvData || csvData.length === 0) {{
+                alert('No data available for download');
+                return;
+            }}
+            
+            // Create CSV content
+            const headers = ['date', 'news', 'financial_impact', 'reasoning', 'sentiment', 'confidence', 'positive', 'negative', 'neutral', 'url'];
+            const csvContent = [
+                headers.join(','),
+                ...csvData.map(row => [
+                    `"${{row.date || ''}}"`,
+                    `"${{(row.news || '').replace(/"/g, '""')}}"`,
+                    `"${{row.financial_impact || ''}}"`,
+                    `"${{(row.reasoning || '').replace(/"/g, '""')}}"`,
+                    `"${{row.sentiment || ''}}"`,
+                    row.confidence || 0,
+                    row.positive || 0,
+                    row.negative || 0,
+                    row.neutral || 0,
+                    `"${{row.url || ''}}"`
+                ].join(','))
+            ].join('\\n');
+            
+            // Create and download file
+            const blob = new Blob([csvContent], {{ type: 'text/csv;charset=utf-8;' }});
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${{ticker}}_news_impact_analysis.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }}
 
         // Close modal when clicking outside
