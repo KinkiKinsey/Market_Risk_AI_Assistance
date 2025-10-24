@@ -456,10 +456,11 @@ def visualize_qq_ai_report(
         }}
 
         .impact-title {{
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 0.9em;
+            font-weight: 500;
             color: #ffffff;
             line-height: 1.4;
+            flex: 1;
         }}
 
         .impact-header-right {{
@@ -579,9 +580,9 @@ def visualize_qq_ai_report(
 
         .step-text {{
             flex: 1;
-            font-size: 0.95em;
+            font-size: 0.75em;
             color: #e2e8f0;
-            line-height: 1.4;
+            line-height: 1.3;
         }}
 
         .arrow {{
