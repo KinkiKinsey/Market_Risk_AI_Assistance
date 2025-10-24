@@ -92,88 +92,47 @@ def visualize_qq_ai_report(
     
     texts_json = json.dumps(texts, ensure_ascii=False)
     
-    # Generate impact chain cards HTML
-    chain_cards_html = ""
+    # Generate Excel-style table rows HTML
+    table_rows_html = ""
+    news_data_json = []  # Store full news for modal
+    
     for chain in impact_chains:
         # Get direction arrow
         direction = chain.get('direction', 'Neutral')
         if direction == 'Increase':
             direction_icon = "↑"
-            direction_class = "increase"
+            direction_class = "impact-up"
         elif direction == 'Decrease':
             direction_icon = "↓"
-            direction_class = "decrease"
+            direction_class = "impact-down"
         else:
             direction_icon = "→"
-            direction_class = "neutral"
+            direction_class = "impact-neutral"
         
-        # Confidence bar
-        confidence = chain.get('confidence', 0.0)
-        confidence_percent = int(confidence * 100)
+        # Get data
+        news_full = chain.get('news_snippet', 'No news')
+        news_short = news_full[:80] + "..." if len(news_full) > 80 else news_full
+        affected_metric = chain.get('affected_metric', 'Unknown')
+        reasoning = chain.get('expectation_reasoning', 'No reasoning provided')
+        news_index = chain.get('news_index', 0)
         
-        # Parse impact chain into steps
-        impact_chain_text = chain.get('impact_chain', '')
-        chain_steps = []
-        if impact_chain_text:
-            raw_steps = impact_chain_text.split('→')
-            for i, step in enumerate(raw_steps):
-                clean_step = step.strip()
-                if clean_step:
-                    chain_steps.append({
-                        'number': i + 1,
-                        'text': clean_step[:80] + "..." if len(clean_step) > 80 else clean_step,
-                        'is_final': i == len(raw_steps) - 1
-                    })
+        # Store full news for modal
+        news_data_json.append({
+            'index': news_index,
+            'full_text': news_full
+        })
         
-        # Build chain flow HTML
-        chain_flow_html = ""
-        if chain_steps:
-            chain_flow_html = '<div class="chain-flow">'
-            for i, step in enumerate(chain_steps):
-                step_class = "final-step" if step['is_final'] else "step"
-                chain_flow_html += f'''
-                    <div class="{step_class}">
-                        <div class="step-number">{step['number']}</div>
-                        <div class="step-text">{step['text']}</div>
-                    </div>
-                '''
-                if i < len(chain_steps) - 1:
-                    chain_flow_html += '<div class="arrow">→</div>'
-            chain_flow_html += '</div>'
-        
-        chain_cards_html += f"""
-            <div class="impact-card" onclick="toggleImpactCard(this)">
-                <div class="impact-header">
-                    <div class="impact-title-section">
-                        <div class="impact-number">{chain.get('news_index', 0)}</div>
-                        <div class="impact-title">{chain.get('news_snippet', 'No news')}</div>
-                    </div>
-                    <div class="impact-header-right">
-                        <div class="metric-badge {direction_class}">
-                            <span class="metric-name">{chain.get('affected_metric', 'Unknown')}</span>
-                            <span class="metric-arrow">{direction_icon}</span>
-                        </div>
-                        <span class="expand-toggle">▼</span>
-                    </div>
-                </div>
-                <div class="impact-content">
-                    {chain_flow_html}
-                    <div class="impact-details">
-                        <div class="detail-row">
-                            <div class="detail-label">{texts['confidence_label']}</div>
-                            <div class="confidence-bar-container">
-                                <div class="confidence-bar" style="width: {confidence_percent}%"></div>
-                                <span class="confidence-text">{confidence_percent}%</span>
-                            </div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">{texts['reasoning_label']}</div>
-                            <div class="reasoning-text">{chain.get('expectation_reasoning', 'No reasoning provided')}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        table_rows_html += f"""
+            <tr class="table-row" onclick="showNewsModal({news_index})">
+                <td class="table-cell news-cell">{news_short}</td>
+                <td class="table-cell impact-cell {direction_class}">
+                    <span class="impact-value">{affected_metric} {direction_icon}</span>
+                </td>
+                <td class="table-cell reasoning-cell">{reasoning}</td>
+            </tr>
         """
+    
+    news_data_json_str = json.dumps(news_data_json)
     
     # Prepare treemap data (unchanged from original)
     has_treemap = macro_df is not None and micro_df is not None
@@ -515,6 +474,166 @@ def visualize_qq_ai_report(
 
         .expand-toggle.expanded {{
             transform: rotate(180deg);
+        }}
+
+        /* ========================================
+           EXCEL-STYLE TABLE STYLES
+           ======================================== */
+        .excel-table-container {{
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-top: 20px;
+        }}
+
+        .excel-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }}
+
+        .table-header {{
+            background: #e5e7eb;
+            border-bottom: 2px solid #d1d5db;
+        }}
+
+        .header-cell {{
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #1f2937;
+            border-right: 1px solid #d1d5db;
+        }}
+
+        .header-cell:last-child {{
+            border-right: none;
+        }}
+
+        .table-row {{
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.15s ease;
+            cursor: pointer;
+        }}
+
+        .table-row:hover {{
+            background-color: #eff6ff;
+        }}
+
+        .table-cell {{
+            padding: 12px 16px;
+            color: #374151;
+            border-right: 1px solid #e5e7eb;
+            vertical-align: top;
+        }}
+
+        .table-cell:last-child {{
+            border-right: none;
+        }}
+
+        .news-cell {{
+            color: #2563eb;
+            font-weight: 500;
+            width: 40%;
+        }}
+
+        .news-cell:hover {{
+            text-decoration: underline;
+        }}
+
+        .impact-cell {{
+            width: 20%;
+            text-align: center;
+            font-weight: 600;
+        }}
+
+        .impact-cell.impact-up {{
+            background: #f0fdf4;
+            color: #16a34a;
+        }}
+
+        .impact-cell.impact-down {{
+            background: #fef2f2;
+            color: #dc2626;
+        }}
+
+        .impact-cell.impact-neutral {{
+            background: #f9fafb;
+            color: #6b7280;
+        }}
+
+        .reasoning-cell {{
+            width: 40%;
+            color: #6b7280;
+            line-height: 1.5;
+        }}
+
+        .impact-value {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }}
+
+        /* News Modal */
+        .news-modal {{
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }}
+
+        .news-modal.active {{
+            display: flex;
+        }}
+
+        .news-modal-content {{
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }}
+
+        .news-modal-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }}
+
+        .news-modal-title {{
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+        }}
+
+        .news-modal-close {{
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #9ca3af;
+            cursor: pointer;
+            line-height: 1;
+        }}
+
+        .news-modal-close:hover {{
+            color: #6b7280;
+        }}
+
+        .news-modal-body {{
+            color: #374151;
+            line-height: 1.7;
+            font-size: 15px;
         }}
 
         .impact-content {{
@@ -875,7 +994,22 @@ def visualize_qq_ai_report(
         <!-- Impact Chains Section -->
         <div class="section">
             {impact_chains_title_html}
-            {chain_cards_html}
+            
+            <!-- Excel-style Table -->
+            <div class="excel-table-container">
+                <table class="excel-table">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="header-cell">News</th>
+                            <th class="header-cell">Financial Impact</th>
+                            <th class="header-cell">Reasoning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows_html}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Quantitative AI Section with TREEMAP -->
@@ -919,12 +1053,24 @@ def visualize_qq_ai_report(
         </div>
     </div>
 
+    <!-- News Modal -->
+    <div id="newsModal" class="news-modal">
+        <div class="news-modal-content">
+            <div class="news-modal-header">
+                <h3 class="news-modal-title">Full News</h3>
+                <button class="news-modal-close" onclick="closeNewsModal()">×</button>
+            </div>
+            <div id="newsModalBody" class="news-modal-body"></div>
+        </div>
+    </div>
+
     <script>
         // Data
         const macroData = {macro_data_json};
         const microData = {micro_data_json};
         const texts = {texts_json};
         const factorTimeData = {factor_time_json};
+        const newsData = {news_data_json_str};
         
         let currentData = macroData;
         
@@ -933,7 +1079,27 @@ def visualize_qq_ai_report(
             .attr("class", "treemap-tooltip")
             .style("opacity", 0);
 
-        // Toggle impact card
+        // News Modal Functions
+        function showNewsModal(newsIndex) {{
+            const newsItem = newsData.find(item => item.index === newsIndex);
+            if (newsItem) {{
+                document.getElementById('newsModalBody').textContent = newsItem.full_text;
+                document.getElementById('newsModal').classList.add('active');
+            }}
+        }}
+
+        function closeNewsModal() {{
+            document.getElementById('newsModal').classList.remove('active');
+        }}
+
+        // Close modal when clicking outside
+        document.getElementById('newsModal').addEventListener('click', function(e) {{
+            if (e.target === this) {{
+                closeNewsModal();
+            }}
+        }});
+
+        // Toggle impact card (legacy, keeping for compatibility)
         function toggleImpactCard(card) {{
             const content = card.querySelector('.impact-content');
             const icon = card.querySelector('.expand-toggle');
