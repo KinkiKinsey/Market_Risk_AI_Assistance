@@ -1144,6 +1144,7 @@ def visualize_qq_ai_report(
 
     <script>
         // Data
+        const ticker = "{ticker}";
         const macroData = {macro_data_json};
         const microData = {micro_data_json};
         const texts = {texts_json};
@@ -1195,6 +1196,9 @@ def visualize_qq_ai_report(
 
         // CSV Download Function
         function downloadCSV() {{
+            console.log('Download CSV clicked');
+            console.log('CSV Data:', csvData);
+            
             if (!csvData || csvData.length === 0) {{
                 alert('No data available for download');
                 return;
