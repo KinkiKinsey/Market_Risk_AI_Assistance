@@ -121,16 +121,23 @@ def visualize_qq_ai_report(
         affected_metric = chain.get('affected_metric', 'Unknown')
         reasoning = chain.get('expectation_reasoning', 'No reasoning provided')
         news_index = chain.get('news_index', 0)
+        news_date = chain.get('date', 'N/A')
+        news_link = chain.get('link', '#')
         
-        # Store full news for modal
+        # Store full news for modal with date and link
         news_data_json.append({
             'index': news_index,
-            'full_text': news_full
+            'full_text': news_full,
+            'date': news_date,
+            'link': news_link
         })
         
         table_rows_html += f"""
             <tr class="table-row" onclick="showNewsModal({news_index})">
-                <td class="table-cell news-cell">{news_short}</td>
+                <td class="table-cell news-cell">
+                    <div style="font-size: 0.75em; color: #6b7280; margin-bottom: 4px;">📅 {news_date}</div>
+                    <div>{news_short}</div>
+                </td>
                 <td class="table-cell impact-cell {sentiment_class}">
                     <span class="impact-value">{affected_metric} {direction_icon}</span>
                 </td>
@@ -1090,7 +1097,29 @@ def visualize_qq_ai_report(
         function showNewsModal(newsIndex) {{
             const newsItem = newsData.find(item => item.index === newsIndex);
             if (newsItem) {{
-                document.getElementById('newsModalBody').textContent = newsItem.full_text;
+                const modalBody = document.getElementById('newsModalBody');
+                
+                // Create modal content with date and clickable link
+                modalBody.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong style="color: #3b82f6;">📅 Date:</strong> ${{newsItem.date || 'N/A'}}
+                    </div>
+                    <div style="margin-bottom: 15px; line-height: 1.6;">
+                        ${{newsItem.full_text}}
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                        <a href="${{newsItem.link}}" target="_blank" rel="noopener noreferrer" 
+                           style="color: #3b82f6; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 5px;">
+                            🔗 Read Full Article
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+                
                 document.getElementById('newsModal').classList.add('active');
             }}
         }}
