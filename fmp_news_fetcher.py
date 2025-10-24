@@ -11,6 +11,55 @@ import os
 FMP_API_KEY = "9dfbbfa29d93f4793f246e8fb5ca5e74"
 
 
+def get_news(ticker: str, days: int) -> List[Dict[str, str]]:
+    """
+    Get news for a ticker from N days ago to today
+    
+    Args:
+        ticker: Stock ticker (e.g., "AAPL", "TSLA")
+        days: Number of days back (e.g., 30, 60, 90)
+    
+    Returns:
+        List of dicts with: news, date, link
+    
+    Example:
+        >>> news = get_news("AAPL", 30)
+        >>> for item in news[:3]:
+        >>>     print(f"{item['date']}: {item['news']}")
+        >>>     print(f"Link: {item['link']}\n")
+    """
+    
+    url = f"https://financialmodelingprep.com/api/v3/stock_news"
+    params = {'tickers': ticker, 'limit': 100, 'apikey': FMP_API_KEY}
+    
+    response = requests.get(url, params=params, timeout=10)
+    data = response.json()
+    
+    cutoff_date = datetime.now() - timedelta(days=days)
+    results = []
+    
+    for item in data:
+        try:
+            date_str = item['publishedDate'].split('.')[0]
+            news_date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+            
+            if news_date >= cutoff_date:
+                title = item.get('title', '')
+                text = item.get('text', '')
+                news_content = f"{title}. {text}" if text else title
+                
+                results.append({
+                    'news': news_content,
+                    'date': date_str,
+                    'link': item.get('url', '')
+                })
+        except:
+            continue
+    
+    print(f"✅ Found {len(results)} news items for {ticker} in last {days} days")
+    return results
+
+
 def get_one_month_news(ticker: str) -> List[str]:
     """
     Get 1 month of news for a ticker from FMP API
