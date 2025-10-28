@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    container_name: qq-ai-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app/backend:/app
+    volumes:
+      - ../backend:/app/backend
+      - ../config.env:/app/config.env
+    restart: unless-stopped
+    networks:
+      - qq-ai-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    container_name: qq-ai-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - qq-ai-network
+
+networks:
+  qq-ai-network:
+    driver: bridge
+

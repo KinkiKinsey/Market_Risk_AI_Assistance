@@ -1,0 +1,87 @@
+.container {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px 20px;
+}
+
+.logo {
+  text-align: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logoSvg {
+  width: 500px;
+  height: 200px;
+  filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8));
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.logoText {
+  font-size: 48px;
+  font-weight: 200;
+  color: #ffffff;
+  letter-spacing: 12px;
+  margin-top: 30px;
+  text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+}
+
+.logoDescription {
+  font-size: 20px;
+  font-weight: 100;
+  color: #a0aec0;
+  letter-spacing: 4px;
+  margin-top: 15px;
+  opacity: 0.9;
+}
+
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 20px;
+  padding: 30px;
+  min-height: 500px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #a0aec0;
+}
+
+.emptyState h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #808080;
+}
+
+.emptyState p {
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 500px;
+}

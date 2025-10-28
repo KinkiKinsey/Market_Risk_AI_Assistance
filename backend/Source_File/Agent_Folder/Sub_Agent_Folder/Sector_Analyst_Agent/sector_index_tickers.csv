@@ -1,0 +1,94 @@
+Ticker,Description
+^GSPC,S&P 500 Index (US Broad)
+^DJI,Dow Jones Industrial Average (US Broad)
+^IXIC,Nasdaq Composite Index (US Broad Tech-tilted)
+SPY,SPDR S&P 500 ETF Trust (US Broad)
+QQQ,Invesco QQQ Trust (Nasdaq-100 ETF)
+DIA,SPDR Dow Jones Industrial Average ETF
+^VIX,CBOE Volatility Index (US Equity Vol)
+^SOX,Philadelphia Semiconductor Index
+SMH,VanEck Semiconductor ETF
+SOXX,iShares Semiconductor ETF
+XLK,Technology Select Sector SPDR Fund
+XLF,Financial Select Sector SPDR Fund
+XLE,Energy Select Sector SPDR Fund
+XLV,Health Care Select Sector SPDR Fund
+XLY,Consumer Discretionary Select Sector SPDR Fund
+XLP,Consumer Staples Select Sector SPDR Fund
+XLI,Industrial Select Sector SPDR Fund
+XLB,Materials Select Sector SPDR Fund
+XLRE,Real Estate Select Sector SPDR Fund
+XLU,Utilities Select Sector SPDR Fund
+XLC,Communication Services Select Sector SPDR Fund
+BTC-USD,Bitcoin (USD Spot)
+ETH-USD,Ethereum (USD Spot)
+^STOXX50E,EURO STOXX 50 Index (Eurozone Blue Chips)
+^STOXX,STOXX Europe 600 Index (Pan-Europe)
+^GDAXI,DAX Index (Germany)
+^FCHI,CAC 40 Index (France)
+^FTSE,FTSE 100 Index (UK)
+^IBEX,IBEX 35 Index (Spain)
+FTSEMIB.MI,FTSE MIB Index (Italy)
+^SSMI,Swiss Market Index (Switzerland)
+^AEX,AEX Index (Netherlands)
+^OMXS30,OMX Stockholm 30 (Sweden)
+FEZ,SPDR EURO STOXX 50 ETF (Eurozone)
+VGK,Vanguard FTSE Europe ETF
+IEUR,iShares Core MSCI Europe ETF
+EWU,iShares MSCI United Kingdom ETF
+EWG,iShares MSCI Germany ETF
+EWQ,iShares MSCI France ETF
+EWL,iShares MSCI Switzerland ETF
+EWN,iShares MSCI Netherlands ETF
+EWD,iShares MSCI Sweden ETF
+EWP,iShares MSCI Spain ETF
+EWI,iShares MSCI Italy ETF
+EPOL,iShares MSCI Poland ETF
+GREK,Global X MSCI Greece ETF
+EIRL,iShares MSCI Ireland ETF
+^N225,Nikkei 225 Index (Japan)
+^TOPX,TOPIX Index (Japan)
+^HSI,Hang Seng Index (Hong Kong)
+^HSTECH,Hang Seng TECH Index (HK China Tech)
+^SSEC,Shanghai Composite Index (China)
+000300.SS,CSI 300 Index (China)
+^KS11,KOSPI Composite Index (South Korea)
+^TWII,TAIEX Index (Taiwan)
+^NSEI,NIFTY 50 Index (India)
+^BSESN,SENSEX 30 Index (India)
+^AXJO,S&P/ASX 200 Index (Australia)
+^NZ50,NZX 50 Index (New Zealand)
+EWJ,iShares MSCI Japan ETF
+EWH,iShares MSCI Hong Kong ETF
+MCHI,iShares MSCI China ETF
+FXI,iShares China Large-Cap ETF
+EWT,iShares MSCI Taiwan ETF
+INDA,iShares MSCI India ETF
+EWY,iShares MSCI South Korea ETF
+EWA,iShares MSCI Australia ETF
+EWS,iShares MSCI Singapore ETF
+EWM,iShares MSCI Malaysia ETF
+EIDO,iShares MSCI Indonesia ETF
+TUR,iShares MSCI Turkey ETF
+^GSPTSE,S&P/TSX Composite Index (Canada)
+^BVSP,Bovespa Index (Brazil)
+^MXX,IPC Index (Mexico)
+EWC,iShares MSCI Canada ETF
+EWZ,iShares MSCI Brazil ETF
+EWW,iShares MSCI Mexico ETF
+ARGT,Global X MSCI Argentina ETF
+EPU,iShares MSCI Peru ETF
+ECH,iShares MSCI Chile ETF
+ACWI,iShares MSCI ACWI ETF (All Country World)
+VEA,Vanguard FTSE Developed Markets ETF
+VWO,Vanguard FTSE Emerging Markets ETF
+EFA,iShares MSCI EAFE ETF
+EEM,iShares MSCI Emerging Markets ETF
+DX-Y.NYB,US Dollar Index (DXY)
+EURUSD=X,EUR/USD Spot
+USDJPY=X,USD/JPY Spot
+USDCNY=X,USD/CNY Onshore Spot
+USDCNH=X,USD/CNH Offshore Spot
+GBPUSD=X,GBP/USD Spot
+USDCHF=X,USD/CHF Spot
+USDCAD=X,USD/CAD Spot
